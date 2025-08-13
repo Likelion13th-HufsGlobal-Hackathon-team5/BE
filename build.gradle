@@ -13,6 +13,10 @@ java {
 	}
 }
 
+ext {
+	springDocVersion = '2.8.9'
+}
+
 configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
@@ -27,12 +31,22 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+
 	compileOnly 'org.projectlombok:lombok'
-	runtimeOnly 'com.mysql:mysql-connector-j'
 	annotationProcessor 'org.projectlombok:lombok'
+
+	runtimeOnly 'com.mysql:mysql-connector-j'
+
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	implementation "org.springdoc:springdoc-openapi-starter-common:${springDocVersion}"
+	implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${springDocVersion}"
+
+	implementation 'com.theokanning.openai-gpt3-java:service:0.18.2'
+	implementation 'com.fasterxml.jackson.core:jackson-databind'
+
 }
 
 tasks.named('test') {
