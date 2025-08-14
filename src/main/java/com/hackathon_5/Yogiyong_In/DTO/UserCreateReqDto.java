@@ -14,6 +14,9 @@ public class UserCreateReqDto {
     @Size(min = 8, max = 100, message = "비밀번호는 최소 8자입니다.")
     private String password;
 
+    @NotBlank(message = "비밀번호 확인이 필요합니다")
+    private String passwordConfirm;
+
     @NotBlank
     @Size(max = 20)
     private String nickname;

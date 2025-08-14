@@ -22,6 +22,9 @@ public class AuthService {
     // 회원가입
     @Transactional
     public UserCreateResDto signup(UserCreateReqDto req){
+        if (!req.getPassword().equals(req.getPasswordConfirm())) {
+            throw new IllegalArgumentException("비밀번호와 비밀번호 확인이 일치하지 않습니다.");
+        }
         if (userRepository.existsByUserId(req.getUserId()))
             throw new IllegalArgumentException("이미 사용 중인 아이디입니다.");
         if (userRepository.existsByNickname(req.getNickname()))
@@ -33,6 +36,7 @@ public class AuthService {
                 .nickname(req.getNickname())
                 .birthYear(req.getBirthYear())
                 .build();
+
         userRepository.save(user);
         return new UserCreateResDto(user.getUserId());
     }
@@ -52,4 +56,3 @@ public class AuthService {
     }
 }
 
-}

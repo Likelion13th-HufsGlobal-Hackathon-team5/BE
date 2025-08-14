@@ -3,13 +3,24 @@ package com.hackathon_5.Yogiyong_In.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.UUID;
+
 @Getter @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity @Table(name = "User")
 public class User {
 
     @Id
-    @Column(length = 20)
+    @Column(length = 36)
     private String userId;
+
+
+    @PrePersist
+    public void generateId() {
+        if (this.userId == null) {
+            this.userId = UUID.randomUUID().toString();
+        }
+    }
+
 
     @Column(nullable = false, length = 200)
     private String password;
