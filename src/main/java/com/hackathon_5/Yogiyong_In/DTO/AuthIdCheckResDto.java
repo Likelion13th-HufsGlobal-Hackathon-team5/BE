@@ -4,6 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter @AllArgsConstructor
-public class AuthNickCheckResDto {
+public class AuthIdCheckResDto {
     private boolean available;
 }
