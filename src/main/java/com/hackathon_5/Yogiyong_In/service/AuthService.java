@@ -43,16 +43,22 @@ public class AuthService {
 
     //아이디 중복 확인
     @Transactional(readOnly = true)
-    public AuthIdCheckResDto idCheck(AuthIdCheckReqDto req){
-        boolean ok = !userRepository.existsByUserId(req.getUserId());
-        return new AuthIdCheckResDto(ok);
+    public AuthIdCheckResDto idCheck(AuthIdCheckReqDto req) {
+        String userId = req.getUserId().trim();
+        boolean exists = userRepository.existsByUserId(userId);
+
+        return new AuthIdCheckResDto(!exists);
     }
+
+
+
 
     //닉네임 중복 확인
     @Transactional(readOnly = true)
-    public AuthNickCheckResDto nickCheck(AuthNickCheckReqDto req){
-        boolean ok = !userRepository.existsByNickname(req.getNickname());
-        return new AuthNickCheckResDto(ok);
+    public AuthNickCheckResDto nickCheck(AuthNickCheckReqDto req) {
+        boolean exists = userRepository.existsByNickname(req.getNickname().trim());
+        return new AuthNickCheckResDto(!exists);
     }
+
 }
 
