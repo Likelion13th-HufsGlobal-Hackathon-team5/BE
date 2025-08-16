@@ -1,9 +1,21 @@
 package com.hackathon_5.Yogiyong_In.service;
 
-import com.hackathon_5.Yogiyong_In.DTO.*;
+import com.hackathon_5.Yogiyong_In.DTO.Auth.AuthIdCheckReqDto;
+import com.hackathon_5.Yogiyong_In.DTO.Auth.AuthIdCheckResDto;
+import com.hackathon_5.Yogiyong_In.DTO.Auth.AuthLoginReqDto;
+import com.hackathon_5.Yogiyong_In.DTO.Auth.AuthLoginResDto;
+import com.hackathon_5.Yogiyong_In.DTO.Auth.AuthNickCheckReqDto;
+import com.hackathon_5.Yogiyong_In.DTO.Auth.AuthNickCheckResDto;
+import com.hackathon_5.Yogiyong_In.DTO.Auth.UserCreateReqDto;
+import com.hackathon_5.Yogiyong_In.DTO.Auth.UserCreateResDto;
 import com.hackathon_5.Yogiyong_In.config.JwtTokenProvider;
 import com.hackathon_5.Yogiyong_In.domain.User;
 import com.hackathon_5.Yogiyong_In.repository.UserRepository;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,19 +36,46 @@ public class AuthService {
     // 회원가입
     @Transactional
     public UserCreateResDto signup(UserCreateReqDto req) {
-        String userId = req.getUserId() == null ? null : req.getUserId().trim();
-        String nickname = req.getNickname() == null ? null : req.getNickname().trim();
+        String userId = req.getUserId().trim();
+        String nickname = req.getNickname().trim();
 
+        // 1. 아이디와 닉네임 중복 확인 토큰 검증
+        try {
+            if (req.getIdCheckToken() == null || req.getNickCheckToken() == null) {
+                throw new IllegalArgumentException("회원가입 전에 아이디와 닉네임 중복 확인을 해주세요.");
+            }
+
+            Claims idClaims = Jwts.parserBuilder()
+                    .setSigningKey(jwtTokenProvider.getKey())
+                    .build()
+                    .parseClaimsJws(req.getIdCheckToken())
+                    .getBody();
+
+            if (!userId.equals(idClaims.get("userId", String.class))) {
+                throw new IllegalArgumentException("아이디 중복 확인 토큰이 유효하지 않습니다.");
+            }
+
+            Claims nickClaims = Jwts.parserBuilder()
+                    .setSigningKey(jwtTokenProvider.getKey())
+                    .build()
+                    .parseClaimsJws(req.getNickCheckToken())
+                    .getBody();
+
+            if (!nickname.equals(nickClaims.get("nickname", String.class))) {
+                throw new IllegalArgumentException("닉네임 중복 확인 토큰이 유효하지 않습니다.");
+            }
+        } catch (ExpiredJwtException e) {
+            throw new IllegalArgumentException("중복 확인 후 시간이 초과되었습니다. 다시 확인해주세요.");
+        } catch (JwtException e) {
+            throw new IllegalArgumentException("유효하지 않은 중복 확인 토큰입니다.");
+        }
+
+        // 2. 비밀번호 확인
         if (!req.getPassword().equals(req.getPasswordConfirm())) {
             throw new IllegalArgumentException("비밀번호와 비밀번호 확인이 일치하지 않습니다.");
         }
-        if (userId == null || userId.isEmpty()) {
-            throw new IllegalArgumentException("아이디를 입력해 주세요.");
-        }
-        if (nickname == null || nickname.isEmpty()) {
-            throw new IllegalArgumentException("닉네임을 입력해 주세요.");
-        }
 
+        // 3. 최종 중복 확인 (DB 레벨)
         if (userRepository.existsByUserId(userId)) {
             throw new IllegalArgumentException("이미 사용 중인 아이디입니다.");
         }
@@ -44,6 +83,7 @@ public class AuthService {
             throw new IllegalArgumentException("이미 사용 중인 닉네임입니다.");
         }
 
+        // 4. 회원 저장
         User user = User.builder()
                 .userId(userId)
                 .password(passwordEncoder.encode(req.getPassword()))
@@ -56,12 +96,19 @@ public class AuthService {
         return new UserCreateResDto(user.getUserId());
     }
 
+
     // 아이디 중복 확인
     @Transactional(readOnly = true)
     public AuthIdCheckResDto idCheck(AuthIdCheckReqDto req) {
         String userId = req.getUserId().trim();
         boolean exists = userRepository.existsByUserId(userId);
-        return new AuthIdCheckResDto(!exists);
+
+        if (exists) {
+            return new AuthIdCheckResDto(false, "이미 사용 중인 아이디입니다.", null);
+        }
+
+        String token = jwtTokenProvider.createCheckToken(userId, "userId", 60); // 60초 유효
+        return new AuthIdCheckResDto(true, "사용 가능한 아이디입니다.", token);
     }
 
     // 닉네임 중복 확인
@@ -69,13 +116,20 @@ public class AuthService {
     public AuthNickCheckResDto nickCheck(AuthNickCheckReqDto req) {
         String nickname = req.getNickname().trim();
         boolean exists = userRepository.existsByNickname(nickname);
-        return new AuthNickCheckResDto(!exists);
+
+        if (exists) {
+            return new AuthNickCheckResDto(false, "이미 사용 중인 닉네임입니다.", null);
+        }
+
+        String token = jwtTokenProvider.createCheckToken(nickname, "nickname", 60); // 60초 유효
+        return new AuthNickCheckResDto(true, "사용 가능한 닉네임입니다.", token);
     }
+
 
     // 로그인
     @Transactional(readOnly = true)
     public AuthLoginResDto login(AuthLoginReqDto req) {
-        String userId = req.getUserId() == null ? null : req.getUserId().trim();
+        String userId = req.getUserId().trim();
 
         var user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new IllegalArgumentException("아이디 또는 비밀번호가 올바르지 않습니다."));

@@ -1,4 +1,4 @@
-package com.hackathon_5.Yogiyong_In.DTO;
+package com.hackathon_5.Yogiyong_In.DTO.Auth;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;

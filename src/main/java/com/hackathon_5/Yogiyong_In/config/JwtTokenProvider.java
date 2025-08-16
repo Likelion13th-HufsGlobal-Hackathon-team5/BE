@@ -1,68 +1,63 @@
 package com.hackathon_5.Yogiyong_In.config;
 
-import io.jsonwebtoken.*;
-import lombok.RequiredArgsConstructor;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
-import java.nio.charset.StandardCharsets;
-import java.time.Instant;
 import java.util.Date;
 import java.util.Map;
 
 @Component
-@RequiredArgsConstructor
+@Getter
 public class JwtTokenProvider {
 
     private final SecretKey key;
+    private final long accessTokenValiditySeconds;
 
-    @Value("${jwt.issuer:app}")
-    private String issuer;
-
-    @Value("${jwt.access-token-seconds:3600}")
-    private long accessTokenSeconds;
-
-    public String createToken(String subject, Map<String, String> claims) {
-
-        return generateToken(subject, (Map) claims, accessTokenSeconds);
+    public JwtTokenProvider(@Value("${jwt.secret}") String secret,
+                            @Value("${jwt.access-token-validity-seconds}") long accessTokenValiditySeconds) {
+        byte[] keyBytes = Decoders.BASE64.decode(secret);
+        this.key = Keys.hmacShaKeyFor(keyBytes);
+        this.accessTokenValiditySeconds = accessTokenValiditySeconds;
     }
 
-    public String generateToken(String subject) {
-        return generateToken(subject, Map.of(), accessTokenSeconds);
-    }
+    public String createToken(String subject, Map<String, Object> claims, long validitySeconds) {
+        Date now = new Date();
+        Date validity = new Date(now.getTime() + validitySeconds * 1000);
 
-    public String generateToken(String subject, Map<String, Object> claims, long ttlSeconds) {
-        Instant now = Instant.now();
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(subject)
-                .setIssuer(issuer)
-                .setIssuedAt(Date.from(now))
-                .setExpiration(Date.from(now.plusSeconds(ttlSeconds)))
-                .signWith(key, SignatureAlgorithm.HS256)
+                .setIssuedAt(now)
+                .setExpiration(validity)
+                .signWith(key, SignatureAlgorithm.HS512)
                 .compact();
     }
 
-    public boolean validate(String token) {
-        try {
-            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
-            return true;
-        } catch (JwtException | IllegalArgumentException e) {
-            return false;
-        }
+    public String createToken(Authentication authentication) {
+        String subject = authentication.getName();
+        return createToken(subject, Map.of(), accessTokenValiditySeconds);
     }
 
-    public String getSubject(String token) {
-        return Jwts.parserBuilder().setSigningKey(key).build()
-                .parseClaimsJws(token).getBody().getSubject();
+    public String createToken(String subject, Map<String, Object> claims) {
+        return createToken(subject, claims, accessTokenValiditySeconds);
     }
 
-    public SecretKey getKey() {
-        return key;
-    }
+    public String createCheckToken(String value, String type, long validitySeconds) {
+        Date now = new Date();
+        Date validity = new Date(now.getTime() + validitySeconds * 1000);
 
-    public long getAccessTokenValiditySeconds() {
-        return accessTokenSeconds;
+        return Jwts.builder()
+                .claim(type, value)
+                .setIssuedAt(now)
+                .setExpiration(validity)
+                .signWith(key, SignatureAlgorithm.HS512)
+                .compact();
     }
 }
