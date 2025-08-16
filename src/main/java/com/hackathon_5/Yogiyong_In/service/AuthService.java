@@ -107,7 +107,7 @@ public class AuthService {
             return new AuthIdCheckResDto(false, "이미 사용 중인 아이디입니다.", null);
         }
 
-        String token = jwtTokenProvider.createCheckToken(userId, "userId", 60); // 60초 유효
+        String token = jwtTokenProvider.createCheckToken(userId, "userId", 300);
         return new AuthIdCheckResDto(true, "사용 가능한 아이디입니다.", token);
     }
 
@@ -121,7 +121,7 @@ public class AuthService {
             return new AuthNickCheckResDto(false, "이미 사용 중인 닉네임입니다.", null);
         }
 
-        String token = jwtTokenProvider.createCheckToken(nickname, "nickname", 60); // 60초 유효
+        String token = jwtTokenProvider.createCheckToken(nickname, "nickname", 500);
         return new AuthNickCheckResDto(true, "사용 가능한 닉네임입니다.", token);
     }
 
