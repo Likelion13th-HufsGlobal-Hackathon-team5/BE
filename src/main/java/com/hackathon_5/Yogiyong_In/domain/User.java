@@ -1,19 +1,23 @@
 package com.hackathon_5.Yogiyong_In.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
-@Getter@Setter
-@NoArgsConstructor
+@Table(name = "users")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class User {
-    @Id
-    public String userId;
-    public String password;
-    public String nickname;
-    public int birthYear;
 
+    @Id
+    @Column(name = "user_id", length = 20, nullable = false)
+    private String userId;
+
+    @Column(name = "password", length = 200, nullable = false)
+    private String password;
+
+    @Column(name = "nickname", length = 20, nullable = false, unique = true)
+    private String nickname;
+
+    @Column(name = "birth_year")
+    private Integer birthYear; // NULL 허용
 }
