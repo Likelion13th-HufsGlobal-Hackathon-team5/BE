@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class CalendarGetResDTO {
+public class CalendarGetResDto {
     private Long festivalId;
     private String festivalName;
     private String festivalDescription;

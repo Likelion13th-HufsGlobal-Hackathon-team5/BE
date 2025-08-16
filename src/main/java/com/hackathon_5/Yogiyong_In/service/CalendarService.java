@@ -1,10 +1,12 @@
 package com.hackathon_5.Yogiyong_In.service;
 
-import com.hackathon_5.Yogiyong_In.DTO.CalendarGetReqDTO;
+import com.hackathon_5.Yogiyong_In.DTO.CalendarGetReqDto;
 import com.hackathon_5.Yogiyong_In.domain.Festival;
 import com.hackathon_5.Yogiyong_In.repository.FestivalRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -16,14 +18,14 @@ public class CalendarService {
         this.festivalRepository = festivalRepository;
     }
 
-    public List<Festival> getFestivalByDate(CalendarGetReqDTO requestDTO) {
-        // year, month, date를 YYYY-MM-DD 문자열로 변환
-        String date = String.format("%04d-%02d-%02d",
+    @Transactional(readOnly = true)
+    public List<Festival> getFestivalByDate(CalendarGetReqDto requestDTO) {
+        LocalDate date = LocalDate.of(
                 requestDTO.getYear(),
                 requestDTO.getMonth(),
-                requestDTO.getDate());
+                requestDTO.getDate()
+        );
 
-        // startDate <= date <= endDate 조건으로 조회
         return festivalRepository.findByStartDateLessThanEqualAndEndDateGreaterThanEqual(date, date);
     }
 }
