@@ -1,16 +1,23 @@
 package com.hackathon_5.Yogiyong_In.domain;
 
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.*;
+import java.time.LocalDate;
 
-@Getter
-@Setter
+@Getter @Setter
+@NoArgsConstructor @AllArgsConstructor @Builder
+@Entity
 public class Festival {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long festivalId;
+
     private String name;
     private String description;
-    private String startDate;
-    private String endDate;
+
+    private LocalDate startDate;
+    private LocalDate endDate;
+
     private String location;
     private String imagePath;
 }

@@ -9,3 +9,4 @@ public class YogiyongInApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(YogiyongInApplication.class, args);
 	}
+}
