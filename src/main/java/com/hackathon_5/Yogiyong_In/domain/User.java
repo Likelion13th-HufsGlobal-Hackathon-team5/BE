@@ -3,24 +3,15 @@ package com.hackathon_5.Yogiyong_In.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.UUID;
-
-@Getter @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Entity @Table(name = "User")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Entity
+@Table(name = "users") // 스키마와 동일
 public class User {
 
     @Id
-    @Column(length = 36)
+    @Column(name = "user_id", length = 20)
     private String userId;
-
-
-    @PrePersist
-    public void generateId() {
-        if (this.userId == null) {
-            this.userId = UUID.randomUUID().toString();
-        }
-    }
-
 
     @Column(nullable = false, length = 200)
     private String password;
@@ -28,6 +19,7 @@ public class User {
     @Column(nullable = false, length = 20, unique = true)
     private String nickname;
 
+    @Column(name = "birth_year")
     private Integer birthYear;
 
     @Builder
@@ -38,3 +30,4 @@ public class User {
         this.birthYear = birthYear;
     }
 }
+
