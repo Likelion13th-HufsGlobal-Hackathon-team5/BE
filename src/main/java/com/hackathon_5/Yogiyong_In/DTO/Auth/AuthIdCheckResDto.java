@@ -1,14 +1,12 @@
-package com.hackathon_5.Yogiyong_In.DTO;
+package com.hackathon_5.Yogiyong_In.DTO.Auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
-@Setter
 @AllArgsConstructor
-@NoArgsConstructor
 public class AuthIdCheckResDto {
     private boolean available;
+    private String message;
+    private String token;
 }

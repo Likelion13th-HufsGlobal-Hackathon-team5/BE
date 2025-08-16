@@ -1,4 +1,4 @@
-package com.hackathon_5.Yogiyong_In.DTO;
+package com.hackathon_5.Yogiyong_In.DTO.Calendar;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
