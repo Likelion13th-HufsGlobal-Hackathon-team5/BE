@@ -39,29 +39,17 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
-                .authorizeHttpRequests(auth -> auth
-                        // 인증이 필요 없는 API 엔드포인트들
-                        .requestMatchers("/api/auth/signup", "/api/auth/login", "/api/auth/id-check", "/api/auth/nick-check").permitAll()
-                        // API 문서 관련 엔드포인트 (개발 편의를 위해)
-                        .requestMatchers("/api-docs/**", "/swagger-ui/**", "/docs/**", "/v3/api-docs/**").permitAll()
-                        // 위를 제외한 모든 요청은 인증 필요
-                        .anyRequest().authenticated()
-                )
-
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
                 .exceptionHandling(e -> e
                         .authenticationEntryPoint((req, res, ex) -> res.setStatus(HttpStatus.UNAUTHORIZED.value()))
                         .accessDeniedHandler((req, res, ex) -> res.setStatus(HttpStatus.FORBIDDEN.value()))
                 )
-
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-
                 .logout(logout -> logout
                         .logoutUrl("/api/auth/logout")
                         .clearAuthentication(true)
                         .logoutSuccessHandler((req, res, auth) -> res.setStatus(HttpStatus.OK.value()))
                 );
-
         return http.build();
     }
 
