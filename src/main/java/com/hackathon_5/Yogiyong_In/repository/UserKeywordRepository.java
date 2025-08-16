@@ -32,9 +32,12 @@ public interface UserKeywordRepository extends JpaRepository<UserKeyword, Intege
     """)
     int clearSelections(@Param("userId") String userId);
 
-    // 특정 유저가 특정 키워드를 선택한 적이 있는지 확인 (있으면 반환)
+    // 단일 키워드 선택 여부
     Optional<UserKeyword> findByUser_UserIdAndKeyword_KeywordId(String userId, Integer keywordId);
 
-    // ✅ 추가: 해당 유저의 "현재 선택된" 키워드 전체 조회 (expand=names 로직에서 사용)
+    // 현재 페이지 키워드들 중 선택된 것들
+    List<UserKeyword> findByUser_UserIdAndKeyword_KeywordIdIn(String userId, Collection<Integer> keywordIds);
+
+    // ✅ 추가: 해당 유저의 "현재 선택된" 모든 키워드 (expand=names에서 사용)
     List<UserKeyword> findByUser_UserIdAndIsSelectedTrue(String userId);
 }
