@@ -15,13 +15,20 @@ public class OpenApiConfig {
     public OpenAPI openAPI() {
         String schemeName = "bearerAuth";
         return new OpenAPI()
-                .info(new Info().title("API").version("v1"))
+                .info(new Info()
+                        .title("Festival Recommendation API")
+                        .version("v1")
+                        .description("Swagger UI for Festival Recommendation"))
                 .addSecurityItem(new SecurityRequirement().addList(schemeName))
-                .components(new Components().addSecuritySchemes(schemeName,
+                .components(new Components().addSecuritySchemes(
+                        schemeName,
                         new SecurityScheme()
                                 .name("Authorization")
                                 .type(SecurityScheme.Type.HTTP)
                                 .scheme("bearer")
-                                .bearerFormat("JWT")));
+                                .bearerFormat("JWT")
+                ));
     }
 }
+
+
