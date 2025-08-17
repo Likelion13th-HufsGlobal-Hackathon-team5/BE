@@ -3,9 +3,10 @@ package com.hackathon_5.Yogiyong_In.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "users")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class User {
 
     @Id
@@ -19,5 +20,14 @@ public class User {
     private String nickname;
 
     @Column(name = "birth_year")
-    private Integer birthYear; // NULL 허용
+    private Integer birthYear; 
+
+    @Builder
+    public User(String userId, String password, String nickname, Integer birthYear) {
+        this.userId = userId;
+        this.password = password;
+        this.nickname = nickname;
+        this.birthYear = birthYear;
+    }
 }
+
