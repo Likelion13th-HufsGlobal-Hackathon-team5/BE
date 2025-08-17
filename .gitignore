@@ -39,3 +39,10 @@ out/
 # src/main/resources/application.yml 파일 무시
 /src/main/resources/application.yml
 
+# Spring Boot configuration
+src/main/resources/application.yml
+src/main/resources/application-*.yml
+src/main/resources/application.properties
+src/main/resources/application-*.properties
+
+

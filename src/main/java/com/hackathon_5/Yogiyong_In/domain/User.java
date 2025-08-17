@@ -6,21 +6,21 @@ import lombok.*;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@Table(name = "users") // 스키마와 동일
+@Table(name = "users")
 public class User {
 
     @Id
-    @Column(name = "user_id", length = 20)
+    @Column(name = "user_id", length = 20, nullable = false)
     private String userId;
 
-    @Column(nullable = false, length = 200)
+    @Column(name = "password", length = 200, nullable = false)
     private String password;
 
-    @Column(nullable = false, length = 20, unique = true)
+    @Column(name = "nickname", length = 20, nullable = false, unique = true)
     private String nickname;
 
     @Column(name = "birth_year")
-    private Integer birthYear;
+    private Integer birthYear; 
 
     @Builder
     public User(String userId, String password, String nickname, Integer birthYear) {
