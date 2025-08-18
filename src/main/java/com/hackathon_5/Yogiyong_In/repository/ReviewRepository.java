@@ -2,7 +2,8 @@ package com.hackathon_5.Yogiyong_In.repository;
 
 import com.hackathon_5.Yogiyong_In.domain.Review;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.*;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
@@ -21,4 +22,8 @@ public interface ReviewRepository extends JpaRepository<Review, Integer> {
             @Param("cursor") Integer cursor,
             Pageable pageable
     );
+
+    // ★ 요약용: 특정 축제의 리뷰 '본문'만 내려받기 (최신순)
+    @Query("select r.reviewCont from Review r where r.festival.festivalId = :festivalId order by r.createdAt desc")
+    List<String> findTextsByFestivalId(@Param("festivalId") Integer festivalId);
 }
