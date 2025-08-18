@@ -2,8 +2,11 @@ package com.hackathon_5.Yogiyong_In.service;
 
 import com.google.genai.Client;
 import com.google.genai.types.*;
+import com.hackathon_5.Yogiyong_In.DTO.AiReview.ReviewSummarizeResDto;
+import com.hackathon_5.Yogiyong_In.repository.ReviewRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -11,17 +14,31 @@ import java.util.stream.Collectors;
 public class ReviewSummaryService {
 
     private final Client client;
+    private final ReviewRepository reviewRepository;
     private static final String MODEL = "gemini-2.5-flash-lite";
 
-    public ReviewSummaryService(Client client) {
+    public ReviewSummaryService(Client client, ReviewRepository reviewRepository) {
         this.client = client;
+        this.reviewRepository = reviewRepository;
+    }
+
+    public ReviewSummarizeResDto summarizeFestival(Integer festivalId,
+                                                   boolean includeQuotes,
+                                                   int topKAspects,
+                                                   boolean forceRefresh) {
+        List<String> texts = reviewRepository.findTextsByFestivalId(festivalId);
+        if (texts == null || texts.isEmpty()) {
+            return new ReviewSummarizeResDto("요약할 리뷰가 없습니다.", MODEL);
+        }
+
+        String summary = summarize(texts, 6);
+        return new ReviewSummarizeResDto(summary, MODEL);
     }
 
     public String summarize(List<String> reviews, Integer maxPoints) {
         if (reviews == null || reviews.isEmpty()) {
             return "요약할 리뷰가 없습니다.";
         }
-
         String joined = joinWithLimit(reviews, 15000);
 
         Content system = Content.fromParts(Part.fromText(
@@ -55,10 +72,7 @@ public class ReviewSummaryService {
                 )
                 .build();
 
-        // Gemini 호출
-        GenerateContentResponse resp =
-                client.models.generateContent(MODEL, prompt, config);
-
+        GenerateContentResponse resp = client.models.generateContent(MODEL, prompt, config);
         String result = resp.text();
         if (result == null || result.isBlank()) {
             return "요약 결과가 비어 있습니다.";
