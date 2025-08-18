@@ -23,7 +23,6 @@ public interface ReviewRepository extends JpaRepository<Review, Integer> {
             Pageable pageable
     );
 
-    // ★ 요약용: 특정 축제의 리뷰 '본문'만 내려받기 (최신순)
     @Query("select r.reviewCont from Review r where r.festival.festivalId = :festivalId order by r.createdAt desc")
     List<String> findTextsByFestivalId(@Param("festivalId") Integer festivalId);
 }

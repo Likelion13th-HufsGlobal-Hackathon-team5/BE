@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 public class ReviewSummaryService {
 
     private final Client client;
-    private final ReviewRepository reviewRepository; // ★ 추가
+    private final ReviewRepository reviewRepository;
     private static final String MODEL = "gemini-2.5-flash-lite";
 
     public ReviewSummaryService(Client client, ReviewRepository reviewRepository) {
@@ -22,7 +22,6 @@ public class ReviewSummaryService {
         this.reviewRepository = reviewRepository;
     }
 
-    // ★ 신규: festivalId 기반 GET 요약
     public ReviewSummarizeResDto summarizeFestival(Integer festivalId,
                                                    boolean includeQuotes,
                                                    int topKAspects,
@@ -32,17 +31,15 @@ public class ReviewSummaryService {
             return new ReviewSummarizeResDto("요약할 리뷰가 없습니다.", MODEL);
         }
 
-        // 필요 시 includeQuotes, topKAspects 등은 프롬프트에 반영해도 됨
-        String summary = summarize(texts, 6); // maxPoints=6 기본값 예시
+        String summary = summarize(texts, 6);
         return new ReviewSummarizeResDto(summary, MODEL);
     }
 
-    // 기존 메서드(유지): reviews 리스트를 받아 요약
     public String summarize(List<String> reviews, Integer maxPoints) {
         if (reviews == null || reviews.isEmpty()) {
             return "요약할 리뷰가 없습니다.";
         }
-        String joined = joinWithLimit(reviews, 15000); // :contentReference[oaicite:3]{index=3}
+        String joined = joinWithLimit(reviews, 15000);
 
         Content system = Content.fromParts(Part.fromText(
                 """
