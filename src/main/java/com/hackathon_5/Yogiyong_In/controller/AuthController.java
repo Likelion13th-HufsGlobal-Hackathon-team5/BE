@@ -1,18 +1,15 @@
 package com.hackathon_5.Yogiyong_In.controller;
 
-import com.hackathon_5.Yogiyong_In.DTO.*;
+import com.hackathon_5.Yogiyong_In.DTO.ApiResponse;
 import com.hackathon_5.Yogiyong_In.DTO.Auth.*;
-import com.hackathon_5.Yogiyong_In.service.TokenBlacklistService;
 import com.hackathon_5.Yogiyong_In.config.JwtTokenProvider;
+import com.hackathon_5.Yogiyong_In.domain.User;
 import com.hackathon_5.Yogiyong_In.service.AuthService;
-import io.jsonwebtoken.Jwts;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Date;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -21,13 +18,13 @@ public class AuthController {
 
     private final AuthService authService;
     private final JwtTokenProvider jwtTokenProvider;
-    private final TokenBlacklistService tokenBlacklistService;
 
     //회원가입
     @PostMapping("/signup")
-    public ApiResponse<UserCreateResDto> signup(@Valid @RequestBody UserCreateReqDto req) {
-        return ApiResponse.ok(authService.signup(req), "회원가입 성공");
+    public ResponseEntity<UserCreateResDto> signup(@Valid @RequestBody UserCreateReqDto req) {
+        return ResponseEntity.ok(authService.signup(req));
     }
+
 
     //아이디 중복 확인
     @PostMapping("/id-check")
@@ -43,27 +40,51 @@ public class AuthController {
 
     //로그인
     @PostMapping("/login")
-    public ApiResponse<AuthLoginResDto> login(@Valid @RequestBody AuthLoginReqDto req) {
-        return ApiResponse.ok(authService.login(req), "로그인 성공");
+    public ResponseEntity<AuthLoginResDto> login(@Valid @RequestBody AuthLoginReqDto req) {
+
+        User user = authService.login(req);
+
+        String accessToken = jwtTokenProvider.createToken(
+                user.getUserId(),
+                java.util.Map.of("nickname", user.getNickname())
+        );
+
+        long maxAge = jwtTokenProvider.getAccessTokenValiditySeconds();
+
+        ResponseCookie cookie = ResponseCookie.from("ACCESS_TOKEN", accessToken)
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("Lax")
+                .path("/")
+                .maxAge(maxAge)
+                .build();
+
+        AuthLoginResDto body = new AuthLoginResDto(
+                "Bearer",
+                "",
+                maxAge,
+                user.getUserId(),
+                user.getNickname()
+        );
+
+        return ResponseEntity.ok()
+                .header("Set-Cookie", cookie.toString())
+                .body(body);
     }
 
     //로그아웃
     @PostMapping("/logout")
-    public ApiResponse<Void> logout(HttpServletRequest request) {
-        String header = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (header == null || !header.startsWith("Bearer ")) {
-            return ApiResponse.ok(null, "이미 로그아웃 되었거나 토큰이 없습니다.");
-        }
-        String token = header.substring(7);
+    public ResponseEntity<String> logout() {
+        ResponseCookie delete = ResponseCookie.from("ACCESS_TOKEN", "")
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("Lax")
+                .path("/")
+                .maxAge(0)
+                .build();
 
-        var parser = Jwts.parserBuilder().setSigningKey(jwtTokenProvider.getKey()).build();
-        var claims = parser.parseClaimsJws(token).getBody();
-        Date exp = claims.getExpiration();
-        long expiresAt = (exp != null)
-                ? exp.getTime()
-                : (System.currentTimeMillis() + jwtTokenProvider.getAccessTokenValiditySeconds() * 1000L);
-
-        tokenBlacklistService.blacklist(token, expiresAt);
-        return ApiResponse.ok(null, "로그아웃 되었습니다.");
+        return ResponseEntity.ok()
+                .header("Set-Cookie", delete.toString())
+                .body("로그아웃 성공");
     }
 }

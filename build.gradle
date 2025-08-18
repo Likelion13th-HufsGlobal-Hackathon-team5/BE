@@ -38,9 +38,10 @@ dependencies {
     // DB
     runtimeOnly 'com.mysql:mysql-connector-j'
 
-    // Swagger / springdoc
-    implementation "org.springdoc:springdoc-openapi-starter-common:${springDocVersion}"
+    // Swagger / springdoc (Boot 3.x 전용)
     implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${springDocVersion}"
+    // (starter-webmvc-ui가 common을 포함하므로 아래 줄은 보통 불필요)
+    // implementation "org.springdoc:springdoc-openapi-starter-common:${springDocVersion}"
 
     // JWT
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
