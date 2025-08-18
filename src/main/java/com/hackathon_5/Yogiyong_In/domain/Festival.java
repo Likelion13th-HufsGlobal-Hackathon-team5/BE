@@ -12,7 +12,7 @@ public class Festival {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "festival_id", nullable = false)
-    private Integer festivalId; // ERD: INT
+    private Integer festivalId;
 
     @Column(name = "festival_name", length = 100, nullable = false)
     private String festivalName;
@@ -32,3 +32,4 @@ public class Festival {
     @Column(name = "image_path", length = 255)
     private String imagePath;
 }
+
