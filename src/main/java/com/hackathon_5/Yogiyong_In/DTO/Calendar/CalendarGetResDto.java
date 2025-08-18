@@ -11,7 +11,7 @@ public class CalendarGetResDto {
     private Integer festivalId;
     private String festivalName;
     private String festivalDesc;
-    private String festivalStart;   // 문자열 응답 (API 용)
+    private String festivalStart;
     private String festivalEnd;
     private String festivalLoca;
     private String imagePath;

@@ -1,69 +1,71 @@
 package com.hackathon_5.Yogiyong_In.config;
 
-import com.hackathon_5.Yogiyong_In.service.TokenBlacklistService;
+import com.hackathon_5.Yogiyong_In.config.JwtTokenProvider;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import javax.crypto.SecretKey;
 import java.io.IOException;
-import java.util.List;
+import java.util.Collections;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final SecretKey key;
-    private final TokenBlacklistService blacklistService;
+    private final JwtTokenProvider jwtTokenProvider;
 
-    public JwtAuthenticationFilter(SecretKey key, TokenBlacklistService blacklistService) {
-        this.key = key;
-        this.blacklistService = blacklistService;
+    public JwtAuthenticationFilter(JwtTokenProvider jwtTokenProvider) {
+        this.jwtTokenProvider = jwtTokenProvider;
     }
 
     @Override
-    protected void doFilterInternal(
-            HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain) throws ServletException, IOException {
 
-        String path = request.getServletPath();
-        if (path.startsWith("/api-docs")
-                || path.startsWith("/docs")
-                || path.startsWith("/swagger-ui")
-                || path.startsWith("/v3/api-docs")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
+        String token = extractTokenFromCookies(request);
 
-        String header = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (header != null && header.startsWith("Bearer ")) {
-            String token = header.substring(7);
-
-            if (blacklistService.isBlacklisted(token)) {
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                return;
-            }
-
+        if (token != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             try {
-                var parser = Jwts.parserBuilder().setSigningKey(key).build();
-                var claimsJws = parser.parseClaimsJws(token);
-                var claims = claimsJws.getBody();
+                Claims claims = Jwts.parserBuilder()
+                        .setSigningKey(jwtTokenProvider.getKey())
+                        .build()
+                        .parseClaimsJws(token)
+                        .getBody();
 
                 String userId = claims.getSubject();
-                var auth = new UsernamePasswordAuthenticationToken(
-                        userId, null, List.of(new SimpleGrantedAuthority("ROLE_USER"))
-                );
-                SecurityContextHolder.getContext().setAuthentication(auth);
-            } catch (Exception e) {
-                // 토큰 오류 시 인증 없이 진행
+
+                if (userId != null) {
+                    UsernamePasswordAuthenticationToken authToken =
+                            new UsernamePasswordAuthenticationToken(
+                                    userId,
+                                    null,
+                                    Collections.emptyList()
+                            );
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
+            } catch (JwtException e) {
             }
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    private String extractTokenFromCookies(HttpServletRequest request) {
+        if (request.getCookies() == null) return null;
+        for (Cookie cookie : request.getCookies()) {
+            if ("ACCESS_TOKEN".equals(cookie.getName())) {
+                return cookie.getValue();
+            }
+        }
+        return null;
     }
 }
