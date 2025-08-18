@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class CalendarService {
@@ -28,21 +27,22 @@ public class CalendarService {
                 requestDTO.getDate()
         );
 
-        return festivalRepository.findByStartDateLessThanEqualAndEndDateGreaterThanEqual(date, date)
+        return festivalRepository
+                .findByFestivalStartLessThanEqualAndFestivalEndGreaterThanEqual(date, date)
                 .stream()
                 .map(this::toDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
-    private CalendarGetResDto toDto(Festival festival) {
+    private CalendarGetResDto toDto(Festival f) {
         return new CalendarGetResDto(
-                festival.getFestivalId(),
-                festival.getName(),
-                festival.getDescription(),
-                festival.getStartDate().toString(),
-                festival.getEndDate().toString(),
-                festival.getLocation(),
-                festival.getImagePath()
+                f.getFestivalId(),
+                f.getFestivalName(),
+                f.getFestivalDesc(),
+                f.getFestivalStart() != null ? f.getFestivalStart().toString() : null,
+                f.getFestivalEnd()   != null ? f.getFestivalEnd().toString()   : null,
+                f.getFestivalLoca(),
+                f.getImagePath()
         );
     }
 }

@@ -1,8 +1,8 @@
 // src/main/java/com/hackathon_5/Yogiyong_In/controller/KeywordController.java
 package com.hackathon_5.Yogiyong_In.controller;
 
-import com.hackathon_5.Yogiyong_In.DTO.KeywordScrollResDto;
-import com.hackathon_5.Yogiyong_In.DTO.KeywordUpdateReqDto;
+import com.hackathon_5.Yogiyong_In.DTO.Keyword.KeywordScrollResDto;
+import com.hackathon_5.Yogiyong_In.DTO.Keyword.KeywordUpdateReqDto;
 import com.hackathon_5.Yogiyong_In.service.KeywordService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

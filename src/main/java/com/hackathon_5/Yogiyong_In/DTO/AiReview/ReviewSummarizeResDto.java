@@ -1,4 +1,4 @@
-package com.hackathon_5.Yogiyong_In.DTO.Review;
+package com.hackathon_5.Yogiyong_In.DTO.AiReview;
 
 
 import lombok.AllArgsConstructor;

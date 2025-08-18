@@ -8,11 +8,11 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class CalendarGetResDto {
-    private Long festivalId;
+    private Integer festivalId;
     private String festivalName;
-    private String festivalDescription;
-    private String startDate;   // or LocalDate
-    private String endDate;     // or LocalDate
-    private String location;
+    private String festivalDesc;
+    private String festivalStart;   // 문자열 응답 (API 용)
+    private String festivalEnd;
+    private String festivalLoca;
     private String imagePath;
 }
