@@ -2,8 +2,11 @@ package com.hackathon_5.Yogiyong_In.service;
 
 import com.google.genai.Client;
 import com.google.genai.types.*;
+import com.hackathon_5.Yogiyong_In.DTO.AiReview.ReviewSummarizeResDto;
+import com.hackathon_5.Yogiyong_In.repository.ReviewRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -11,18 +14,35 @@ import java.util.stream.Collectors;
 public class ReviewSummaryService {
 
     private final Client client;
+    private final ReviewRepository reviewRepository; // ★ 추가
     private static final String MODEL = "gemini-2.5-flash-lite";
 
-    public ReviewSummaryService(Client client) {
+    public ReviewSummaryService(Client client, ReviewRepository reviewRepository) {
         this.client = client;
+        this.reviewRepository = reviewRepository;
     }
 
+    // ★ 신규: festivalId 기반 GET 요약
+    public ReviewSummarizeResDto summarizeFestival(Integer festivalId,
+                                                   boolean includeQuotes,
+                                                   int topKAspects,
+                                                   boolean forceRefresh) {
+        List<String> texts = reviewRepository.findTextsByFestivalId(festivalId);
+        if (texts == null || texts.isEmpty()) {
+            return new ReviewSummarizeResDto("요약할 리뷰가 없습니다.", MODEL);
+        }
+
+        // 필요 시 includeQuotes, topKAspects 등은 프롬프트에 반영해도 됨
+        String summary = summarize(texts, 6); // maxPoints=6 기본값 예시
+        return new ReviewSummarizeResDto(summary, MODEL);
+    }
+
+    // 기존 메서드(유지): reviews 리스트를 받아 요약
     public String summarize(List<String> reviews, Integer maxPoints) {
         if (reviews == null || reviews.isEmpty()) {
             return "요약할 리뷰가 없습니다.";
         }
-
-        String joined = joinWithLimit(reviews, 15000);
+        String joined = joinWithLimit(reviews, 15000); // :contentReference[oaicite:3]{index=3}
 
         Content system = Content.fromParts(Part.fromText(
                 """
@@ -55,10 +75,7 @@ public class ReviewSummaryService {
                 )
                 .build();
 
-        // Gemini 호출
-        GenerateContentResponse resp =
-                client.models.generateContent(MODEL, prompt, config);
-
+        GenerateContentResponse resp = client.models.generateContent(MODEL, prompt, config);
         String result = resp.text();
         if (result == null || result.isBlank()) {
             return "요약 결과가 비어 있습니다.";

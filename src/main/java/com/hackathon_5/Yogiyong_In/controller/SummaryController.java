@@ -14,12 +14,15 @@ public class SummaryController {
 
     private final ReviewSummaryService service;
 
-    @PostMapping
-    public ResponseEntity<ReviewSummarizeResDto> summarize(@RequestBody ReviewSummarizeReqDto req) {
-        String result = service.summarize(req.getReviews(), req.getMaxPoints());
-        return ResponseEntity.ok(
-                new ReviewSummarizeResDto(result, "gemini-2.5-flash-lite")
-        );
+    @GetMapping("/festivals/{festivalId}")
+    public ResponseEntity<ReviewSummarizeResDto> summarizeFestival(
+            @PathVariable Integer festivalId,
+            @RequestParam(defaultValue = "true") boolean includeQuotes,
+            @RequestParam(defaultValue = "5") int topKAspects,
+            @RequestParam(defaultValue = "false") boolean forceRefresh
+    ) {
+        var res = service.summarizeFestival(festivalId, includeQuotes, topKAspects, forceRefresh);
+        return ResponseEntity.ok(res);
     }
 }
 
