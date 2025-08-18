@@ -1,6 +1,6 @@
 package com.hackathon_5.Yogiyong_In.controller;
 
-import com.hackathon_5.Yogiyong_In.DTO.ReviewScrollResDto;
+import com.hackathon_5.Yogiyong_In.DTO.Review.ReviewScrollResDto;
 import com.hackathon_5.Yogiyong_In.service.ReviewService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

@@ -1,7 +1,7 @@
 package com.hackathon_5.Yogiyong_In.service;
 
-import com.hackathon_5.Yogiyong_In.DTO.KeywordGetItemDto;
-import com.hackathon_5.Yogiyong_In.DTO.KeywordScrollResDto;
+import com.hackathon_5.Yogiyong_In.DTO.Keyword.KeywordGetItemDto;
+import com.hackathon_5.Yogiyong_In.DTO.Keyword.KeywordScrollResDto;
 import com.hackathon_5.Yogiyong_In.domain.Keyword;
 import com.hackathon_5.Yogiyong_In.domain.User;
 import com.hackathon_5.Yogiyong_In.domain.UserKeyword;

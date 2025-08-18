@@ -1,4 +1,4 @@
-package com.hackathon_5.Yogiyong_In.DTO;
+package com.hackathon_5.Yogiyong_In.DTO.Review;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;

@@ -1,8 +1,8 @@
 package com.hackathon_5.Yogiyong_In.service;
 
-import com.hackathon_5.Yogiyong_In.DTO.ReviewGetItemResDto;
-import com.hackathon_5.Yogiyong_In.DTO.ReviewGetUserResDto;
-import com.hackathon_5.Yogiyong_In.DTO.ReviewScrollResDto;
+import com.hackathon_5.Yogiyong_In.DTO.Review.ReviewGetItemResDto;
+import com.hackathon_5.Yogiyong_In.DTO.Review.ReviewGetUserResDto;
+import com.hackathon_5.Yogiyong_In.DTO.Review.ReviewScrollResDto;
 import com.hackathon_5.Yogiyong_In.domain.Review;
 import com.hackathon_5.Yogiyong_In.repository.ReviewRepository;
 import lombok.RequiredArgsConstructor;

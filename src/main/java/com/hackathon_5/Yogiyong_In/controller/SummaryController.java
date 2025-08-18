@@ -1,7 +1,7 @@
 package com.hackathon_5.Yogiyong_In.controller;
 
-import com.hackathon_5.Yogiyong_In.DTO.Review.ReviewSummarizeReqDto;
-import com.hackathon_5.Yogiyong_In.DTO.Review.ReviewSummarizeResDto;
+import com.hackathon_5.Yogiyong_In.DTO.AiReview.ReviewSummarizeReqDto;
+import com.hackathon_5.Yogiyong_In.DTO.AiReview.ReviewSummarizeResDto;
 import com.hackathon_5.Yogiyong_In.service.ReviewSummaryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
