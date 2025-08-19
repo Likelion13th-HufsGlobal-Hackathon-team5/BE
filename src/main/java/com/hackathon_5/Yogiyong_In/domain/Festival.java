@@ -1,25 +1,37 @@
-package com.hackathon_5.yogiyong_in.domain;
+package com.hackathon_5.Yogiyong_In.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import java.time.LocalDate;
 
 @Entity
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Table(name = "festivals")
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class Festival {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long festivalId;
+    @Column(name = "festival_id", nullable = false)
+    private Integer festivalId;
 
+    @Column(name = "festival_name", length = 100, nullable = false)
     private String festivalName;
-    private String startDate;
-    private String endDate;
-    private String location;
-    private String description;
+
+    @Column(name = "festival_desc", columnDefinition = "TEXT")
+    private String festivalDesc;
+
+    @Column(name = "festival_start")
+    private LocalDate festivalStart;
+
+    @Column(name = "festival_end")
+    private LocalDate festivalEnd;
+
+    @Column(name = "festival_loca", length = 50)
+    private String festivalLoca;
+
+    @Column(name = "image_path", length = 255)
     private String imagePath;
+
+    @Column(name = "ai_review", columnDefinition = "TEXT")
     private String aiReview;
 }

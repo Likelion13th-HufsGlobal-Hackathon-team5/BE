@@ -1,21 +1,16 @@
-package com.hackathon_5.Yogiyong_In.DTO.;
+package com.hackathon_5.Yogiyong_In.DTO;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-
+import lombok.*;
 import java.time.LocalDate;
 
-@Getter
-@Builder
-@AllArgsConstructor
+@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class FestivalInfoResDTO {
-    private Long festivalId;
+    private Integer festivalId;
     private String festivalName;
-    private LocalDate startDate;
-    private LocalDate endDate;
-    private String location;
-    private String description;
+    private String festivalDesc;
+    private LocalDate festivalStart;
+    private LocalDate festivalEnd;
+    private String festivalLoca;
     private String imagePath;
     private String aiReview;
 }
