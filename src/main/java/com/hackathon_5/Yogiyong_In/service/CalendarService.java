@@ -4,6 +4,7 @@ import com.hackathon_5.Yogiyong_In.domain.Festival;
 import com.hackathon_5.Yogiyong_In.repository.FestivalRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -21,5 +22,6 @@ public class CalendarService {
 
         // startDate <= date <= endDate 조건으로 조회
         return festivalRepository.findByStartDateLessThanEqualAndEndDateGreaterThanEqual(strDate, strDate);
+
     }
 }
