@@ -1,13 +1,14 @@
 package com.hackathon_5.Yogiyong_In.service;
 
-import com.hackathon_5.Yogiyong_In.DTO.Festival.FestivalInfoResDto;
+import com.hackathon_5.Yogiyong_In.DTO.Calendar.CalendarGetReqDto;
+import com.hackathon_5.Yogiyong_In.DTO.Calendar.CalendarGetResDto;
 import com.hackathon_5.Yogiyong_In.domain.Festival;
 import com.hackathon_5.Yogiyong_In.repository.FestivalRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class CalendarService {
@@ -18,38 +19,30 @@ public class CalendarService {
         this.festivalRepository = festivalRepository;
     }
 
-    public List<FestivalInfoResDto> getFestivalByDate(int year, int month, int date) {
-        String strDate = String.format("%04d-%02d-%02d", year, month, date);
-        return festivalRepository.findByFestivalStartLessThanEqualAndFestivalEndGreaterThanEqual(strDate, strDate)
+    @Transactional(readOnly = true)
+    public List<CalendarGetResDto> getFestivalByDate(CalendarGetReqDto requestDTO) {
+        LocalDate date = LocalDate.of(
+                requestDTO.getYear(),
+                requestDTO.getMonth(),
+                requestDTO.getDate()
+        );
+
+        return festivalRepository
+                .findByFestivalStartLessThanEqualAndFestivalEndGreaterThanEqual(date, date)
                 .stream()
-                .map(this::toResDTO)
-                .collect(Collectors.toList());
+                .map(this::toDto)
+                .toList();
     }
 
-    public List<FestivalInfoResDto> getAllFestivals() {
-        return festivalRepository.findAll().stream()
-                .map(this::toResDTO)
-                .collect(Collectors.toList());
+    private CalendarGetResDto toDto(Festival f) {
+        return new CalendarGetResDto(
+                f.getFestivalId(),
+                f.getFestivalName(),
+                f.getFestivalDesc(),
+                f.getFestivalStart() != null ? f.getFestivalStart().toString() : null,
+                f.getFestivalEnd()   != null ? f.getFestivalEnd().toString()   : null,
+                f.getFestivalLoca(),
+                f.getImagePath()
+        );
     }
-
-    public Optional<FestivalInfoResDto> getFestivalById(Integer id) {
-        return festivalRepository.findById(id)
-                .map(this::toResDTO);
-    }
-
-
-    private FestivalInfoResDto toResDTO(Festival festival) {
-        return FestivalInfoResDto.builder()
-                .festivalId(festival.getFestivalId())
-                .festivalName(festival.getFestivalName())
-                .festivalDesc(festival.getFestivalDesc())
-                .festivalStart(festival.getFestivalStart())
-                .festivalEnd(festival.getFestivalEnd())
-                .festivalLoca(festival.getFestivalLoca())
-                .imagePath(festival.getImagePath())
-                .aiReview(festival.getAiReview())
-                .build();
-    }
-
-
 }
