@@ -2,11 +2,13 @@ package com.hackathon_5.Yogiyong_In.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
-import java.time.LocalDate;
 
 @Entity
 @Table(name = "festivals")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Festival {
 
     @Id
@@ -21,15 +23,17 @@ public class Festival {
     private String festivalDesc;
 
     @Column(name = "festival_start")
-    private LocalDate festivalStart;
+    private String festivalStart;
 
     @Column(name = "festival_end")
-    private LocalDate festivalEnd;
+    private String festivalEnd;
 
     @Column(name = "festival_loca", length = 50)
     private String festivalLoca;
 
     @Column(name = "image_path", length = 255)
     private String imagePath;
-}
 
+    @Column(name = "ai_review", columnDefinition = "TEXT")
+    private String aiReview;
+}

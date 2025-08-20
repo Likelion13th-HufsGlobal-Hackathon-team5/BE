@@ -4,15 +4,16 @@ import com.hackathon_5.Yogiyong_In.domain.Festival;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.util.List;
 
-@Getter @AllArgsConstructor @Builder
-class BookmarkFestivalDto {
+@Getter
+@AllArgsConstructor
+@Builder
+public class BookmarkFestivalDto {
     private Integer festivalId;
     private String festivalName;
     private String festivalDesc;
-    private LocalDate festivalStart;
-    private LocalDate festivalEnd;
+    private String festivalStart;
+    private String festivalEnd;
     private String festivalLoca;
     private String imagePath;
 
@@ -21,8 +22,8 @@ class BookmarkFestivalDto {
                 .festivalId(f.getFestivalId())
                 .festivalName(f.getFestivalName())
                 .festivalDesc(f.getFestivalDesc())
-                .festivalStart(f.getFestivalStart())
-                .festivalEnd(f.getFestivalEnd())
+                .festivalStart(f.getFestivalStart()) // 이제 타입이 일치합니다.
+                .festivalEnd(f.getFestivalEnd())     // 이제 타입이 일치합니다.
                 .festivalLoca(f.getFestivalLoca())
                 .imagePath(f.getImagePath())
                 .build();
