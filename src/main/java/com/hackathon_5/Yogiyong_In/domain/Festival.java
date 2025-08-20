@@ -35,3 +35,4 @@ public class Festival {
     @Column(name = "ai_review", columnDefinition = "TEXT")
     private String aiReview;
 }
+
