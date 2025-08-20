@@ -31,5 +31,8 @@ public class Festival {
 
     @Column(name = "image_path", length = 255)
     private String imagePath;
+
+    @Column(name = "ai_review", columnDefinition = "TEXT")
+    private String aiReview;
 }
 
