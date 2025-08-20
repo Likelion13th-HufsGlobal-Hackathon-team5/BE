@@ -13,6 +13,6 @@ public class ReviewCreateResDto {
     private Integer reviewId;
     private String reviewTitle;
     private String reviewCont;
-    private String nickname;   // User 엔티티에서 가져올 예정
+    private String nickname;
     private LocalDateTime createdAt;
 }

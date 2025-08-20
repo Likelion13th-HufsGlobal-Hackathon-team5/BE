@@ -7,9 +7,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ReviewCreateReqDto {
-    private Integer reviewId;
+    private Integer festivalId;
     private String  userId;
     private String reviewTitle;
-    private String rewviewCont;
+    private String reviewCont;
 
 }

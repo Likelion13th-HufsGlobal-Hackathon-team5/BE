@@ -21,10 +21,10 @@ public class Festival {
     private String festivalDesc;
 
     @Column(name = "festival_start")
-    private LocalDate festivalStart;
+    private String festivalStart;
 
     @Column(name = "festival_end")
-    private LocalDate festivalEnd;
+    private String festivalEnd;
 
     @Column(name = "festival_loca", length = 50)
     private String festivalLoca;

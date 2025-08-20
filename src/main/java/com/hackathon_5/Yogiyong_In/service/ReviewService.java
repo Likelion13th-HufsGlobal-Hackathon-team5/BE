@@ -24,9 +24,6 @@ public class ReviewService {
     private final UserRepository userRepository;
     private final FestivalRepository festivalRepository;
 
-    /**
-     * 📌 특정 축제 리뷰 스크롤 조회
-     */
     public ReviewScrollResDto getReviewsScroll(Integer festivalId, Integer cursor, int size) {
         int s = size <= 0 ? 20 : Math.min(size, 100);
 
@@ -84,13 +81,12 @@ public class ReviewService {
 
         Review saved = reviewRepository.save(review);
 
-        return new ReviewCreateResDto()
+        return new ReviewCreateResDto(
                 saved.getReviewId(),
                 saved.getReviewTitle(),
                 saved.getReviewCont(),
-                saved.getCreatedAt(),
-                saved.getUser().getUserId(),
-                saved.getFestival().getFestivalId()
+                saved.getUser().getNickname(),
+                saved.getCreatedAt()
         );
     }
 }

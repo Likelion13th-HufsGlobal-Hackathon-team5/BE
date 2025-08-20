@@ -1,15 +1,17 @@
-package com.hackathon_5.Yogiyong_In.DTO;
+package com.hackathon_5.Yogiyong_In.DTO.Festival;
+
 
 import lombok.*;
-import java.time.LocalDate;
 
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
-public class FestivalInfoReqDTO {
+public class FestivalInfoReqDto {
+    private Integer festivalId;
     private String festivalName;
     private String festivalDesc;
-    private LocalDate festivalStart;
-    private LocalDate festivalEnd;
+    private String festivalStart;
+    private String festivalEnd;
     private String festivalLoca;
     private String imagePath;
     private String aiReview;
 }
+

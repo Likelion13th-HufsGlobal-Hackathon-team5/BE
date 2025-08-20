@@ -33,7 +33,7 @@ public class ReviewController {
         );
     }
     @Operation(summary = "리뷰 작성", description = "리뷰 제목, 내용, 유저 ID, 축제 ID를 받아 리뷰를 작성합니다.")
-    @PostMapping("/reviews")
+    @PostMapping("/review")
     public ResponseEntity<ReviewCreateResDto> createReview(
             @RequestBody ReviewCreateReqDto reqDto
     ) {
