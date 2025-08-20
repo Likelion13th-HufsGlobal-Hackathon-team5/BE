@@ -1,7 +1,5 @@
 package com.hackathon_5.Yogiyong_In.controller;
 
-import com.hackathon_5.Yogiyong_In.DTO.Review.ReviewCreateReqDto;
-import com.hackathon_5.Yogiyong_In.DTO.Review.ReviewCreateResDto;
 import com.hackathon_5.Yogiyong_In.DTO.Review.ReviewScrollResDto;
 import com.hackathon_5.Yogiyong_In.service.ReviewService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,12 +29,5 @@ public class ReviewController {
         return ResponseEntity.ok(
                 reviewService.getReviewsScroll(festivalId, cursor, s)
         );
-    }
-    @Operation(summary = "리뷰 작성", description = "리뷰 제목, 내용, 유저 ID, 축제 ID를 받아 리뷰를 작성합니다.")
-    @PostMapping("/review")
-    public ResponseEntity<ReviewCreateResDto> createReview(
-            @RequestBody ReviewCreateReqDto reqDto
-    ) {
-        return ResponseEntity.ok(reviewService.createReview(reqDto));
     }
 }
