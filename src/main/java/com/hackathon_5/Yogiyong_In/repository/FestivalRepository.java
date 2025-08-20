@@ -4,12 +4,11 @@ import com.hackathon_5.Yogiyong_In.domain.Festival;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @Repository
 public interface FestivalRepository extends JpaRepository<Festival, Integer> {
     List<Festival> findByFestivalStartLessThanEqualAndFestivalEndGreaterThanEqual(
-            LocalDate startDate, LocalDate endDate
+            String startDate, String endDate
     );
 }
