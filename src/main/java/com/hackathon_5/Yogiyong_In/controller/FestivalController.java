@@ -12,6 +12,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/festivals")
 @RequiredArgsConstructor
+
 public class FestivalController {
 
     private final FestivalService festivalService;
