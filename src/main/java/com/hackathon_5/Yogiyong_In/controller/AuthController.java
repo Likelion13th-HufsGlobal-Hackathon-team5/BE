@@ -53,7 +53,7 @@ public class AuthController {
 
         ResponseCookie cookie = ResponseCookie.from("ACCESS_TOKEN", accessToken)
                 .httpOnly(true)
-                .secure(true)
+                .secure(false) //// 추후 true 로 바꿔야해용
                 .sameSite("Lax")
                 .path("/")
                 .maxAge(maxAge)
