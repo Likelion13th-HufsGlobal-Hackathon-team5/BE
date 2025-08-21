@@ -20,14 +20,26 @@ public class User {
     private String nickname;
 
     @Column(name = "birth_year")
-    private Integer birthYear; 
+    private Integer birthYear;
+
+    @Column(name = "profile_image_url", length = 255)
+    private String profileImageUrl;
 
     @Builder
-    public User(String userId, String password, String nickname, Integer birthYear) {
+    public User(String userId, String password, String nickname, Integer birthYear, String profileImageUrl) {
         this.userId = userId;
         this.password = password;
         this.nickname = nickname;
         this.birthYear = birthYear;
+        this.profileImageUrl = profileImageUrl;
+    }
+    public void updateProfile(String nickname, Integer birthYear, String profileImageUrl) {
+        if (nickname != null) this.nickname = nickname;
+        if (birthYear != null) this.birthYear = birthYear;
+        if (profileImageUrl != null) this.profileImageUrl = profileImageUrl;
+    }
+
+    public void changePassword(String newPassword) {
+        this.password = newPassword;
     }
 }
-

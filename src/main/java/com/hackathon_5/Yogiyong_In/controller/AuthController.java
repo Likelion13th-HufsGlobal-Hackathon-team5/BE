@@ -61,7 +61,7 @@ public class AuthController {
 
         AuthLoginResDto body = new AuthLoginResDto(
                 "Bearer",
-                "",
+                accessToken,
                 maxAge,
                 user.getUserId(),
                 user.getNickname()

@@ -31,7 +31,7 @@ public class MypageService {
             }
         }
 
-        updateUser(u, req.getNickname(), req.getBirthYear());
+        updateUser(u, req.getNickname(), req.getBirthyear());
 
         return MyPageUserResDto.from(u);
     }
