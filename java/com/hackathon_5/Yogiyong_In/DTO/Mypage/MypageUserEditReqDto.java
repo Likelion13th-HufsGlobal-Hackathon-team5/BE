@@ -1,10 +1,20 @@
 package com.hackathon_5.Yogiyong_In.DTO.Mypage;
 
-import com.hackathon_5.Yogiyong_In.domain.User;
-import lombok.*;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter @Setter @NoArgsConstructor
 public class MyPageUserEditReqDto {
-    private String nickname;
-    private Integer birthYear;
+
+    @NotBlank(message = "이 필드는 필수입니다.")
+    private String name;
+
+    @NotBlank(message = "이 필드는 필수입니다.")
+    private String birthyear;
+
+    private String password;        // 선택 입력
+    private String passwordConfirm; // 선택 입력
+    private String profileImageUrl; // 선택 입력
 }

@@ -62,11 +62,9 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    // ▼▼ 추가: 토큰 파싱
+    // ▼▼ 추가: 토큰 파싱 & subject(userId) 추출
     public Claims parseClaims(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
+        return Jwts.parserBuilder().setSigningKey(key).build()
                 .parseClaimsJws(token)
                 .getBody();
     }
