@@ -19,29 +19,43 @@ import java.util.stream.Collectors;
 public class CalendarService {
 
     private final FestivalRepository festivalRepository;
+    private final FestivalAiReviewService festivalAiReviewService;
+
 
     public List<FestivalInfoResDto> getAllFestivals() {
+        return getAllFestivals(false);
+    }
+
+    public List<FestivalInfoResDto> getAllFestivals(boolean withAi) {
         return festivalRepository.findAll().stream()
-                .map(this::toResDTO)
+                .map(f -> toResDTO(f, withAi))
                 .collect(Collectors.toList());
     }
 
     public Optional<FestivalInfoResDto> getFestivalById(Integer id) {
-        return festivalRepository.findById(id)
-                .map(this::toResDTO);
+        return getFestivalById(id, true);
     }
 
+    public Optional<FestivalInfoResDto> getFestivalById(Integer id, boolean withAi) {
+        return festivalRepository.findById(id)
+                .map(f -> toResDTO(f, withAi));
+    }
+
+    // 특정 날짜 포함 축제 조회
     public List<FestivalInfoResDto> getFestivalsByDate(int year, int month, int date) {
+        return getFestivalsByDate(year, month, date, false);
+    }
+
+    public List<FestivalInfoResDto> getFestivalsByDate(int year, int month, int date, boolean withAi) {
         LocalDate targetDate = LocalDate.of(year, month, date);
-        return festivalRepository.findByFestivalStartLessThanEqualAndFestivalEndGreaterThanEqual(
-                        targetDate, targetDate
-                )
+        return festivalRepository
+                .findByFestivalStartLessThanEqualAndFestivalEndGreaterThanEqual(targetDate, targetDate)
                 .stream()
-                .map(this::toResDTO)
+                .map(f -> toResDTO(f, withAi))
                 .collect(Collectors.toList());
     }
 
-    // === 월별 조회 ===
+    // 월별 조회(달력용)
     public List<FestivalCalendarDto> getByMonth(int year, int month) {
         LocalDate monthStart = LocalDate.of(year, month, 1);
         LocalDate monthEnd   = monthStart.withDayOfMonth(monthStart.lengthOfMonth());
@@ -59,7 +73,7 @@ public class CalendarService {
                 .collect(Collectors.toList());
     }
 
-    // === 범위 조회 ===
+    //범위 조회(달력용)
     public List<FestivalCalendarDto> getRange(LocalDate start, LocalDate end) {
         return festivalRepository.findForCalendar(start, end)
                 .stream()
@@ -74,7 +88,17 @@ public class CalendarService {
                 .collect(Collectors.toList());
     }
 
-    private FestivalInfoResDto toResDTO(Festival festival) {
+    // 공통 DTO 매핑
+    private FestivalInfoResDto toResDTO(Festival festival, boolean withAi) {
+        String ai = null;
+        if (withAi) {
+            try {
+                ai = festivalAiReviewService.generateFestivalReview(festival.getFestivalDesc());
+            } catch (Exception e) {
+                ai = "AI 리뷰 생성에 실패했습니다.";
+            }
+        }
+
         return FestivalInfoResDto.builder()
                 .festivalId(festival.getFestivalId())
                 .festivalName(festival.getFestivalName())
@@ -83,7 +107,7 @@ public class CalendarService {
                 .festivalEnd(festival.getFestivalEnd())
                 .festivalLoca(festival.getFestivalLoca())
                 .imagePath(festival.getImagePath())
-                // .aiReview(festival.getAiReview())
+                .aiReview(ai)
                 .build();
     }
 }
