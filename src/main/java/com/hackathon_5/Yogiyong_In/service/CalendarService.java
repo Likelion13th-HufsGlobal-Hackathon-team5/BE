@@ -1,5 +1,6 @@
 package com.hackathon_5.Yogiyong_In.service;
 
+import com.hackathon_5.Yogiyong_In.DTO.Festival.FestivalCalendarDto;
 import com.hackathon_5.Yogiyong_In.DTO.Festival.FestivalInfoResDto;
 import com.hackathon_5.Yogiyong_In.domain.Festival;
 import com.hackathon_5.Yogiyong_In.repository.FestivalRepository;
@@ -7,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -17,7 +19,6 @@ import java.util.stream.Collectors;
 public class CalendarService {
 
     private final FestivalRepository festivalRepository;
-
 
     public List<FestivalInfoResDto> getAllFestivals() {
         return festivalRepository.findAll().stream()
@@ -31,10 +32,45 @@ public class CalendarService {
     }
 
     public List<FestivalInfoResDto> getFestivalsByDate(int year, int month, int date) {
-        String strDate = String.format("%04d-%02d-%02d", year, month, date);
-        return festivalRepository.findByFestivalStartLessThanEqualAndFestivalEndGreaterThanEqual(strDate, strDate)
+        LocalDate targetDate = LocalDate.of(year, month, date);
+        return festivalRepository.findByFestivalStartLessThanEqualAndFestivalEndGreaterThanEqual(
+                        targetDate, targetDate
+                )
                 .stream()
                 .map(this::toResDTO)
+                .collect(Collectors.toList());
+    }
+
+    // === 월별 조회 ===
+    public List<FestivalCalendarDto> getByMonth(int year, int month) {
+        LocalDate monthStart = LocalDate.of(year, month, 1);
+        LocalDate monthEnd   = monthStart.withDayOfMonth(monthStart.lengthOfMonth());
+
+        return festivalRepository.findForCalendar(monthStart, monthEnd)
+                .stream()
+                .map(festival -> FestivalCalendarDto.builder()
+                        .festivalId(festival.getFestivalId())
+                        .festivalStart(festival.getFestivalStart())
+                        .festivalEnd(festival.getFestivalEnd())
+                        .displayStart(festival.getFestivalStart().isBefore(monthStart) ? monthStart : festival.getFestivalStart())
+                        .displayEnd(festival.getFestivalEnd().isAfter(monthEnd) ? monthEnd : festival.getFestivalEnd())
+                        .build()
+                )
+                .collect(Collectors.toList());
+    }
+
+    // === 범위 조회 ===
+    public List<FestivalCalendarDto> getRange(LocalDate start, LocalDate end) {
+        return festivalRepository.findForCalendar(start, end)
+                .stream()
+                .map(festival -> FestivalCalendarDto.builder()
+                        .festivalId(festival.getFestivalId())
+                        .festivalStart(festival.getFestivalStart())
+                        .festivalEnd(festival.getFestivalEnd())
+                        .displayStart(festival.getFestivalStart().isBefore(start) ? start : festival.getFestivalStart())
+                        .displayEnd(festival.getFestivalEnd().isAfter(end) ? end : festival.getFestivalEnd())
+                        .build()
+                )
                 .collect(Collectors.toList());
     }
 
@@ -47,7 +83,7 @@ public class CalendarService {
                 .festivalEnd(festival.getFestivalEnd())
                 .festivalLoca(festival.getFestivalLoca())
                 .imagePath(festival.getImagePath())
-                .aiReview(festival.getAiReview())
+                // .aiReview(festival.getAiReview())
                 .build();
     }
 }
