@@ -22,9 +22,8 @@ public class BookmarkFestivalDto {
                 .festivalId(f.getFestivalId())
                 .festivalName(f.getFestivalName())
                 .festivalDesc(f.getFestivalDesc())
-                .festivalStart(f.getFestivalStart()) // 이제 타입이 일치합니다.
-                .festivalEnd(f.getFestivalEnd())     // 이제 타입이 일치합니다.
-                .festivalLoca(f.getFestivalLoca())
+                .festivalStart(f.getFestivalStart().toString())
+                .festivalEnd(f.getFestivalEnd().toString())
                 .imagePath(f.getImagePath())
                 .build();
     }
