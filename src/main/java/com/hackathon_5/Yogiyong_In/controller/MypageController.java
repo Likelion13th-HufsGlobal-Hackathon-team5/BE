@@ -4,6 +4,7 @@ import com.hackathon_5.Yogiyong_In.DTO.Mypage.MyPageUserEditReqDto;
 import com.hackathon_5.Yogiyong_In.config.JwtTokenProvider;
 import com.hackathon_5.Yogiyong_In.domain.User;
 import com.hackathon_5.Yogiyong_In.repository.UserRepository;
+import com.hackathon_5.Yogiyong_In.service.MypageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
@@ -28,6 +29,18 @@ public class MypageController {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
+    private final MypageService mypageService;
+
+    @GetMapping("/user")
+    public ResponseEntity<?> getMyInfo() {
+        var auth = org.springframework.security.core.context.SecurityContextHolder
+                .getContext().getAuthentication();
+        String userId = (auth != null) ? (String) auth.getPrincipal() : null;
+        if (userId == null) return ResponseEntity.status(401).build();
+
+        return ResponseEntity.ok(mypageService.getMyInfo(userId));
+    }
+
 
     @Operation(summary = "유저 정보 수정", description = "name/birthyear 필수, password는 선택. 성공 시 message만 반환.")
     @PatchMapping("/user-edit")
