@@ -35,7 +35,4 @@ public class Festival {
     @Column(name = "image_path", length = 255)
     private String imagePath;
 
-    // DDL/ERD에 없음: 필요 시 DTO/별도 테이블로 처리해야할듯여
-    // @Transient
-    // private String aiReview;
 }
