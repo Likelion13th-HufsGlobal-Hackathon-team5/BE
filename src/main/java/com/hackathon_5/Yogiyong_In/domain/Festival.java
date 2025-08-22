@@ -2,6 +2,7 @@ package com.hackathon_5.Yogiyong_In.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "festivals")
@@ -23,10 +24,10 @@ public class Festival {
     private String festivalDesc;
 
     @Column(name = "festival_start")
-    private String festivalStart;
+    private LocalDate festivalStart;
 
     @Column(name = "festival_end")
-    private String festivalEnd;
+    private LocalDate festivalEnd;
 
     @Column(name = "festival_loca", length = 50)
     private String festivalLoca;
@@ -34,6 +35,7 @@ public class Festival {
     @Column(name = "image_path", length = 255)
     private String imagePath;
 
-    @Column(name = "ai_review", columnDefinition = "TEXT")
-    private String aiReview;
+    // DDL/ERD에 없음: 필요 시 DTO/별도 테이블로 처리해야할듯여
+    // @Transient
+    // private String aiReview;
 }
