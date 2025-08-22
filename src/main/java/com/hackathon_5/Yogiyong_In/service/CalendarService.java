@@ -21,7 +21,7 @@ public class CalendarService {
     private final FestivalRepository festivalRepository;
     private final FestivalAiReviewService festivalAiReviewService;
 
-
+    // 목록보기
     public List<FestivalInfoResDto> getAllFestivals() {
         return getAllFestivals(false);
     }
@@ -32,6 +32,7 @@ public class CalendarService {
                 .collect(Collectors.toList());
     }
 
+    // 상세보기
     public Optional<FestivalInfoResDto> getFestivalById(Integer id) {
         return getFestivalById(id, true);
     }
