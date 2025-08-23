@@ -1,4 +1,3 @@
-// src/main/java/com/hackathon_5/Yogiyong_In/controller/KeywordController.java
 package com.hackathon_5.Yogiyong_In.controller;
 
 import com.hackathon_5.Yogiyong_In.DTO.Keyword.KeywordScrollResDto;
@@ -39,7 +38,7 @@ public class KeywordController {
             summary = "키워드 목록(스크롤)",
             description = """
                 cursor(마지막 keywordId) 이후 데이터를 size만큼 반환합니다.
-                ✅ 조회도 로그인 필수(Authorization: Bearer ...).
+                조회도 로그인 필수(Authorization: Bearer ...).
                 includeSelected=true면 사용자 선택 여부도 함께 내려줍니다.
                 """,
             security = { @SecurityRequirement(name = "bearerAuth") }

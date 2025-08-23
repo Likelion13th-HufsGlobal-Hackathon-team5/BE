@@ -16,9 +16,6 @@ public class KeywordGetItemDto {
     @Schema(description = "키워드명", example = "불꽃놀이")
     private String name;         // DB: keyword_name
 
-    @Schema(description = "아이콘 이미지 URL(또는 경로)", example = "/icons/1.svg")
-    private String iconUrl;      // DB: image_path → 서비스에서 URL 변환 후 세팅
-
     @Schema(description = "사용자 선택 여부 (includeSelected=true일 때만 포함)", example = "true", nullable = true)
     private Boolean selected;    // 로그인+includeSelected=true일 때만 값, 아니면 null(응답에서 제외)
 }

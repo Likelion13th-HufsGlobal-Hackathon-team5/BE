@@ -25,8 +25,6 @@ public class KeywordService {
     private final KeywordRepository keywordRepository;
     private final UserKeywordRepository userKeywordRepository;
 
-    private static final String ICON_BASE = ""; // 예: "https://cdn.example.com"
-
     /** 컨트롤러가 전달하는 userIdOrNull(비로그인이면 null) 기반으로 동작 */
     public KeywordScrollResDto getKeywordsScroll(Integer cursor, int size, boolean includeSelected, String userIdOrNull) {
         int s = size <= 0 ? 30 : Math.min(size, 100);
@@ -54,7 +52,6 @@ public class KeywordService {
                 .map(k -> KeywordGetItemDto.builder()
                         .keywordId(k.getKeywordId())
                         .name(k.getKeywordName())
-                        .iconUrl(toIconUrl(k.getImagePath()))
                         .selected(includeSelected && userIdOrNull != null
                                 ? finalSelectedIds.contains(k.getKeywordId())
                                 : null)
@@ -122,15 +119,8 @@ public class KeywordService {
                 .map(k -> KeywordGetItemDto.builder()
                         .keywordId(k.getKeywordId())
                         .name(k.getKeywordName())
-                        .iconUrl(toIconUrl(k.getImagePath()))
                         .selected(true)
                         .build())
                 .toList();
-    }
-
-    private String toIconUrl(String imagePath) {
-        if (imagePath == null || imagePath.isBlank()) return null;
-        if (imagePath.startsWith("http")) return imagePath;
-        return ICON_BASE + imagePath;
     }
 }
