@@ -1,9 +1,9 @@
 package com.hackathon_5.Yogiyong_In.controller;
 
-import com.hackathon_5.Yogiyong_In.DTO.ApiResponse;
-import com.hackathon_5.Yogiyong_In.DTO.Bookmark.BookmarkCreateReqDto;
-import com.hackathon_5.Yogiyong_In.DTO.Bookmark.BookmarkCreateResDto;
-import com.hackathon_5.Yogiyong_In.DTO.Bookmark.BookmarkListResDto;
+import com.hackathon_5.Yogiyong_In.dto.ApiResponse;
+import com.hackathon_5.Yogiyong_In.dto.Bookmark.BookmarkCreateReqDto;
+import com.hackathon_5.Yogiyong_In.dto.Bookmark.BookmarkCreateResDto;
+import com.hackathon_5.Yogiyong_In.dto.Bookmark.BookmarkListResDto;
 import com.hackathon_5.Yogiyong_In.config.JwtTokenProvider;
 import com.hackathon_5.Yogiyong_In.service.BookmarkService;
 import com.hackathon_5.Yogiyong_In.util.AuthUtils;

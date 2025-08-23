@@ -1,7 +1,7 @@
 package com.hackathon_5.Yogiyong_In.controller;
 
-import com.hackathon_5.Yogiyong_In.DTO.ApiResponse;
-import com.hackathon_5.Yogiyong_In.DTO.Auth.*;
+import com.hackathon_5.Yogiyong_In.dto.ApiResponse;
+import com.hackathon_5.Yogiyong_In.dto.Auth.*;
 import com.hackathon_5.Yogiyong_In.config.JwtTokenProvider;
 import com.hackathon_5.Yogiyong_In.domain.User;
 import com.hackathon_5.Yogiyong_In.service.AuthService;

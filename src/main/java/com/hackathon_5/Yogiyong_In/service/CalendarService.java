@@ -1,7 +1,7 @@
 package com.hackathon_5.Yogiyong_In.service;
 
-import com.hackathon_5.Yogiyong_In.DTO.Festival.FestivalCalendarDto;
-import com.hackathon_5.Yogiyong_In.DTO.Festival.FestivalInfoResDto;
+import com.hackathon_5.Yogiyong_In.dto.Festival.FestivalCalendarDto;
+import com.hackathon_5.Yogiyong_In.dto.Festival.FestivalInfoResDto;
 import com.hackathon_5.Yogiyong_In.domain.Festival;
 import com.hackathon_5.Yogiyong_In.repository.FestivalRepository;
 import lombok.RequiredArgsConstructor;

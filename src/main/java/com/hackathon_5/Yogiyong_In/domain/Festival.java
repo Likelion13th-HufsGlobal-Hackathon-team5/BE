@@ -32,7 +32,7 @@ public class Festival {
     @Column(name = "festival_loca", length = 50)
     private String festivalLoca;
 
-    @Column(name = "image_path", length = 255)
+    @Column(name = "image_path", length = 1024)
     private String imagePath;
 
 }

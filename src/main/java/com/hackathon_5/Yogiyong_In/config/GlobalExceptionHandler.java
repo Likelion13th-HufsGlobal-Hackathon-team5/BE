@@ -1,6 +1,6 @@
 package com.hackathon_5.Yogiyong_In.config;
 
-import com.hackathon_5.Yogiyong_In.DTO.ApiResponse;
+import com.hackathon_5.Yogiyong_In.dto.ApiResponse;
 import org.springframework.http.*;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;

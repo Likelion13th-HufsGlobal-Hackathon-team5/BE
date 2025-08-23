@@ -1,12 +1,12 @@
 package com.hackathon_5.Yogiyong_In.service;
 
-import com.hackathon_5.Yogiyong_In.DTO.Auth.AuthIdCheckReqDto;
-import com.hackathon_5.Yogiyong_In.DTO.Auth.AuthIdCheckResDto;
-import com.hackathon_5.Yogiyong_In.DTO.Auth.AuthLoginReqDto;
-import com.hackathon_5.Yogiyong_In.DTO.Auth.AuthNickCheckReqDto;
-import com.hackathon_5.Yogiyong_In.DTO.Auth.AuthNickCheckResDto;
-import com.hackathon_5.Yogiyong_In.DTO.Auth.UserCreateReqDto;
-import com.hackathon_5.Yogiyong_In.DTO.Auth.UserCreateResDto;
+import com.hackathon_5.Yogiyong_In.dto.Auth.AuthIdCheckReqDto;
+import com.hackathon_5.Yogiyong_In.dto.Auth.AuthIdCheckResDto;
+import com.hackathon_5.Yogiyong_In.dto.Auth.AuthLoginReqDto;
+import com.hackathon_5.Yogiyong_In.dto.Auth.AuthNickCheckReqDto;
+import com.hackathon_5.Yogiyong_In.dto.Auth.AuthNickCheckResDto;
+import com.hackathon_5.Yogiyong_In.dto.Auth.UserCreateReqDto;
+import com.hackathon_5.Yogiyong_In.dto.Auth.UserCreateResDto;
 import com.hackathon_5.Yogiyong_In.config.JwtTokenProvider;
 import com.hackathon_5.Yogiyong_In.domain.User;
 import com.hackathon_5.Yogiyong_In.repository.UserRepository;

@@ -1,6 +1,6 @@
 package com.hackathon_5.Yogiyong_In.controller;
 
-import com.hackathon_5.Yogiyong_In.DTO.AiReview.ReviewSummarizeResDto;
+import com.hackathon_5.Yogiyong_In.dto.AiReview.ReviewSummarizeResDto;
 import com.hackathon_5.Yogiyong_In.service.FestivalAiReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

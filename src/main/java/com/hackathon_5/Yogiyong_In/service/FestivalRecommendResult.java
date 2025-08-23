@@ -1,6 +1,6 @@
 package com.hackathon_5.Yogiyong_In.service;
 
-import com.hackathon_5.Yogiyong_In.DTO.AiRecommend.FestivalRecommendGetResDto;
+import com.hackathon_5.Yogiyong_In.dto.AiRecommend.FestivalRecommendGetResDto;
 
 public record FestivalRecommendResult(
         FestivalRecommendGetResDto data,

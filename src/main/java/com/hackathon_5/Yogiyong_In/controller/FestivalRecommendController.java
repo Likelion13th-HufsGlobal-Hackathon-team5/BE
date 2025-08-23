@@ -1,7 +1,7 @@
 package com.hackathon_5.Yogiyong_In.controller;
 
-import com.hackathon_5.Yogiyong_In.DTO.ApiResponse;
-import com.hackathon_5.Yogiyong_In.DTO.AiRecommend.FestivalRecommendGetResDto;
+import com.hackathon_5.Yogiyong_In.dto.ApiResponse;
+import com.hackathon_5.Yogiyong_In.dto.AiRecommend.FestivalRecommendGetResDto;
 import com.hackathon_5.Yogiyong_In.service.FestivalRecommendService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;

@@ -1,7 +1,7 @@
 package com.hackathon_5.Yogiyong_In.repository;
 
 import com.hackathon_5.Yogiyong_In.domain.Festival;
-import com.hackathon_5.Yogiyong_In.DTO.Festival.FestivalCalendarDto;
+import com.hackathon_5.Yogiyong_In.dto.Festival.FestivalCalendarDto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -20,7 +20,7 @@ public interface FestivalRepository extends JpaRepository<Festival, Integer> {
 
     // 커스텀 JPQL
     @Query("""
-      select new com.hackathon_5.Yogiyong_In.DTO.Festival.FestivalCalendarDto(
+      select new com.hackathon_5.Yogiyong_In.dto.Festival.FestivalCalendarDto(
          f.festivalId, f.festivalStart, f.festivalEnd
       )
       from Festival f

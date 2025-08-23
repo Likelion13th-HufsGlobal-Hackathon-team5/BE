@@ -8,7 +8,7 @@ import com.google.genai.types.HarmBlockThreshold;
 import com.google.genai.types.HarmCategory;
 import com.google.genai.types.Part;
 import com.google.genai.types.SafetySetting;
-import com.hackathon_5.Yogiyong_In.DTO.AiReview.ReviewSummarizeResDto;
+import com.hackathon_5.Yogiyong_In.dto.AiReview.ReviewSummarizeResDto;
 import com.hackathon_5.Yogiyong_In.domain.Festival;
 import com.hackathon_5.Yogiyong_In.repository.FestivalRepository;
 import lombok.RequiredArgsConstructor;

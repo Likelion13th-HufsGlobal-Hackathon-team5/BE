@@ -1,6 +1,6 @@
 package com.hackathon_5.Yogiyong_In.service;
 
-import com.hackathon_5.Yogiyong_In.DTO.Bookmark.*;
+import com.hackathon_5.Yogiyong_In.dto.Bookmark.*;
 import com.hackathon_5.Yogiyong_In.domain.Bookmark;
 import com.hackathon_5.Yogiyong_In.domain.Festival;
 import com.hackathon_5.Yogiyong_In.domain.User;

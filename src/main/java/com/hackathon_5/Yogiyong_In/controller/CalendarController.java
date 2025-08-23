@@ -1,8 +1,8 @@
 package com.hackathon_5.Yogiyong_In.controller;
 
-import com.hackathon_5.Yogiyong_In.DTO.Festival.FestivalInfoResDto;
-import com.hackathon_5.Yogiyong_In.DTO.Festival.FestivalCalendarDto;
-import com.hackathon_5.Yogiyong_In.DTO.ApiResponse;
+import com.hackathon_5.Yogiyong_In.dto.Festival.FestivalInfoResDto;
+import com.hackathon_5.Yogiyong_In.dto.Festival.FestivalCalendarDto;
+import com.hackathon_5.Yogiyong_In.dto.ApiResponse;
 import com.hackathon_5.Yogiyong_In.service.CalendarService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;

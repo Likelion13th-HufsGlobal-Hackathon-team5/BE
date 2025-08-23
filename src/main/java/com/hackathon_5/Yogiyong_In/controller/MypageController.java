@@ -1,7 +1,7 @@
 package com.hackathon_5.Yogiyong_In.controller;
 
-import com.hackathon_5.Yogiyong_In.DTO.Mypage.MyPageUserEditReqDto;
-import com.hackathon_5.Yogiyong_In.DTO.Mypage.MyPageUserResDto;
+import com.hackathon_5.Yogiyong_In.dto.Mypage.MyPageUserEditReqDto;
+import com.hackathon_5.Yogiyong_In.dto.Mypage.MyPageUserResDto;
 import com.hackathon_5.Yogiyong_In.config.JwtTokenProvider;
 import com.hackathon_5.Yogiyong_In.domain.User;
 import com.hackathon_5.Yogiyong_In.repository.UserRepository;
