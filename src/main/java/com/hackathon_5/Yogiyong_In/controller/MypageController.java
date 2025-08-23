@@ -8,10 +8,14 @@ import com.hackathon_5.Yogiyong_In.repository.UserRepository;
 import com.hackathon_5.Yogiyong_In.service.MypageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
@@ -33,13 +37,19 @@ public class MypageController {
     private final MypageService mypageService;
 
     @Operation(summary = "내 정보 조회", description = "로그인 사용자의 프로필 정보를 반환합니다.")
-    @GetMapping("/user")
+    @ApiResponse(
+            responseCode = "200",
+            description = "OK",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = MyPageUserResDto.class))
+    )
+    @GetMapping(value = "/user", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<MyPageUserResDto> getMyInfo() {
         var auth = org.springframework.security.core.context.SecurityContextHolder
                 .getContext().getAuthentication();
         String userId = (auth != null) ? (String) auth.getPrincipal() : null;
         if (userId == null) {
-            return ResponseEntity.status(401).build();
+            return ResponseEntity.status(401).<MyPageUserResDto>build();
         }
         return ResponseEntity.ok(mypageService.getMyInfo(userId));
     }
