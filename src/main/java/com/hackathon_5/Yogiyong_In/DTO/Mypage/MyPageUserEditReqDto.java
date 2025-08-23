@@ -17,5 +17,4 @@ public class MyPageUserEditReqDto {
 
     private String password;
     private String passwordConfirm;
-    private String profileImageUrl;
 }
