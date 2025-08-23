@@ -31,16 +31,17 @@ public class MypageController {
     private final UserRepository userRepository;
     private final MypageService mypageService;
 
+    @Operation(summary = "내 정보 조회", description = "로그인 사용자의 프로필 정보를 반환합니다.")
     @GetMapping("/user")
     public ResponseEntity<?> getMyInfo() {
         var auth = org.springframework.security.core.context.SecurityContextHolder
                 .getContext().getAuthentication();
         String userId = (auth != null) ? (String) auth.getPrincipal() : null;
-        if (userId == null) return ResponseEntity.status(401).build();
-
+        if (userId == null) {
+            return ResponseEntity.status(401).build();
+        }
         return ResponseEntity.ok(mypageService.getMyInfo(userId));
     }
-
 
     @Operation(summary = "유저 정보 수정", description = "name/birthyear 필수, password는 선택. 성공 시 message만 반환.")
     @PatchMapping("/user-edit")
@@ -78,7 +79,7 @@ public class MypageController {
         }
         User user = optionalUser.get();
 
-        // 4) 추가 검증 (수동으로 처리해야 하는 부분)
+        // 4) 추가 검증 (수동 처리)
         Map<String, List<String>> manualFieldErrors = new LinkedHashMap<>();
 
         // 비밀번호 유효성 검증
@@ -93,7 +94,7 @@ public class MypageController {
             }
         }
 
-        // 닉네임 중복 방지 (DB unique 제약 보호)
+        // 닉네임 중복 방지
         if (req.getNickname() != null && !user.getNickname().equals(req.getNickname())) {
             if (userRepository.existsByNickname(req.getNickname())) {
                 manualFieldErrors.put("nickname", List.of("이미 사용 중인 닉네임입니다."));
@@ -107,7 +108,7 @@ public class MypageController {
         // 5) 업데이트 적용
         user.updateProfile(req.getNickname(), req.getBirthyear(), req.getProfileImageUrl());
         if (StringUtils.hasText(req.getPassword())) {
-            // ※ 비밀번호 인코딩이 필요하다면 여기에서 encoder.encode(...) 적용
+            // 비밀번호 인코딩 필요 시: user.changePassword(encoder.encode(req.getPassword()));
             user.changePassword(req.getPassword());
         }
         userRepository.save(user);
