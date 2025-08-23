@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/summary")
 @RequiredArgsConstructor
-public class SummaryController {
+public class AireviewController {
 
     private final FestivalAiReviewService festivalAiReviewService;
 

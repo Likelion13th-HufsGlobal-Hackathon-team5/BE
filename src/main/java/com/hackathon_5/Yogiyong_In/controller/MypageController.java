@@ -117,9 +117,8 @@ public class MypageController {
         }
 
         // 5) 업데이트 적용
-        user.updateProfile(req.getNickname(), req.getBirthyear(), req.getProfileImageUrl());
+        user.updateProfile(req.getNickname(), req.getBirthyear());
         if (StringUtils.hasText(req.getPassword())) {
-            // 비밀번호 인코딩 필요 시: user.changePassword(encoder.encode(req.getPassword()));
             user.changePassword(req.getPassword());
         }
         userRepository.save(user);
