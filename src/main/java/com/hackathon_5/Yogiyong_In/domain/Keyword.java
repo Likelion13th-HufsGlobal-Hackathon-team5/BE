@@ -16,6 +16,6 @@ public class Keyword {
     @Column(name = "keyword_name", length = 50, nullable = false)
     private String keywordName;
 
-    @Column(name = "image_path", length = 225) // ERD: 225
-    private String imagePath;
+    @Column(name = "slug", nullable = false, unique = true, length = 32)
+    private String slug;
 }

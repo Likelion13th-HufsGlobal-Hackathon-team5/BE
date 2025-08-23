@@ -12,5 +12,4 @@ public class FestivalRecommendGetItemDto {
     private String  festivalStart;  // festivals.festival_start (ISO 문자열)
     private String  festivalEnd;    // festivals.festival_end   (ISO 문자열)
     private String  festivalLoca;   // festivals.festival_loca
-    private String  imagePath;      // festivals.image_path
-}
+    }
