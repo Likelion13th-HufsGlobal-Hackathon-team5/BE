@@ -1,10 +1,13 @@
 package com.hackathon_5.Yogiyong_In.service;
 
-import com.hackathon_5.Yogiyong_In.DTO.Review.ReviewGetItemResDto;
-import com.hackathon_5.Yogiyong_In.DTO.Review.ReviewGetUserResDto;
-import com.hackathon_5.Yogiyong_In.DTO.Review.ReviewScrollResDto;
+import com.hackathon_5.Yogiyong_In.DTO.Review.*;
+import com.hackathon_5.Yogiyong_In.domain.Festival;
 import com.hackathon_5.Yogiyong_In.domain.Review;
+import com.hackathon_5.Yogiyong_In.domain.User;
+import com.hackathon_5.Yogiyong_In.repository.FestivalRepository;
 import com.hackathon_5.Yogiyong_In.repository.ReviewRepository;
+import com.hackathon_5.Yogiyong_In.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -17,6 +20,8 @@ import java.util.stream.Collectors;
 public class ReviewService {
 
     private final ReviewRepository reviewRepository;
+    private final UserRepository userRepository;
+    private final FestivalRepository festivalRepository;
 
     public ReviewScrollResDto getReviewsScroll(Integer festivalId, Integer cursor, int size) {
         int s = size <= 0 ? 20 : Math.min(size, 100);
@@ -56,5 +61,30 @@ public class ReviewService {
                 .content(r.getReviewCont())
                 .createdAt(createdIso)
                 .build();
+    }
+
+    @Transactional
+    public ReviewCreateResDto createReview(ReviewCreateReqDto reqDto) {
+        User user = userRepository.findById(reqDto.getUserId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+        Festival festival = festivalRepository.findById(reqDto.getFestivalId())
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 축제입니다."));
+
+        Review review = Review.builder()
+                .reviewTitle(reqDto.getReviewTitle())
+                .reviewCont(reqDto.getReviewCont())
+                .user(user)
+                .festival(festival)
+                .build();
+
+        Review saved = reviewRepository.save(review);
+
+        return new ReviewCreateResDto(
+                saved.getReviewId(),
+                saved.getReviewTitle(),
+                saved.getReviewCont(),
+                saved.getUser().getNickname(),
+                saved.getCreatedAt()
+        );
     }
 }

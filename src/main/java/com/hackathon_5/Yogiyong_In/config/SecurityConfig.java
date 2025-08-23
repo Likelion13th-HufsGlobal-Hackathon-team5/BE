@@ -40,12 +40,17 @@ public class SecurityConfig {
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
+                                "/v3/api-docs/**",
                                 "/api-docs/**",
                                 "/docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html"
                         ).permitAll()
-                        .requestMatchers("/api/auth/**").permitAll()   // ✅ POST 한정 → 전체 허용
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/reviews").permitAll()
+                        .requestMatchers(HttpMethod.GET,  "/api/reviews/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/festivals/*/reviews").permitAll()
+                        .requestMatchers(HttpMethod.GET,  "/api/festivals/*/reviews/**").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .anyRequest().authenticated()
                 )
