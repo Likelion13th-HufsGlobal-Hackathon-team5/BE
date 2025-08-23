@@ -1,6 +1,7 @@
 package com.hackathon_5.Yogiyong_In.controller;
 
 import com.hackathon_5.Yogiyong_In.DTO.Mypage.MyPageUserEditReqDto;
+import com.hackathon_5.Yogiyong_In.DTO.Mypage.MyPageUserResDto;
 import com.hackathon_5.Yogiyong_In.config.JwtTokenProvider;
 import com.hackathon_5.Yogiyong_In.domain.User;
 import com.hackathon_5.Yogiyong_In.repository.UserRepository;
@@ -33,7 +34,7 @@ public class MypageController {
 
     @Operation(summary = "내 정보 조회", description = "로그인 사용자의 프로필 정보를 반환합니다.")
     @GetMapping("/user")
-    public ResponseEntity<?> getMyInfo() {
+    public ResponseEntity<MyPageUserResDto> getMyInfo() {
         var auth = org.springframework.security.core.context.SecurityContextHolder
                 .getContext().getAuthentication();
         String userId = (auth != null) ? (String) auth.getPrincipal() : null;
