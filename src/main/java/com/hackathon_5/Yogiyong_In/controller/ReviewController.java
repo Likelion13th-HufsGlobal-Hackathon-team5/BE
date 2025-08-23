@@ -1,5 +1,7 @@
 package com.hackathon_5.Yogiyong_In.controller;
 
+import com.hackathon_5.Yogiyong_In.DTO.Review.ReviewCreateReqDto;
+import com.hackathon_5.Yogiyong_In.DTO.Review.ReviewCreateResDto;
 import com.hackathon_5.Yogiyong_In.DTO.Review.ReviewScrollResDto;
 import com.hackathon_5.Yogiyong_In.service.ReviewService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,6 +18,14 @@ import org.springframework.web.bind.annotation.*;
 public class ReviewController {
 
     private final ReviewService reviewService;
+
+    @Operation(summary = "리뷰 작성", description = "리뷰 제목, 내용, 유저 ID, 축제 ID를 받아 리뷰를 작성합니다.")
+    @PostMapping("/reviews")
+    public ResponseEntity<ReviewCreateResDto> createReview(
+            @RequestBody ReviewCreateReqDto reqDto
+    ) {
+        return ResponseEntity.ok(reviewService.createReview(reqDto));
+    }
 
     @Operation(summary = "축제 리뷰 목록(스크롤)",
             description = "festivalId에 대한 리뷰를 cursor(마지막 reviewId) 이후부터 size만큼 반환.")
