@@ -3,8 +3,11 @@ package com.hackathon_5.Yogiyong_In.service;
 import com.hackathon_5.Yogiyong_In.dto.Festival.FestivalCalendarDto;
 import com.hackathon_5.Yogiyong_In.dto.Festival.FestivalInfoResDto;
 import com.hackathon_5.Yogiyong_In.domain.Festival;
+import com.hackathon_5.Yogiyong_In.dto.Festival.PopularFestivalDto;
+import com.hackathon_5.Yogiyong_In.repository.BookmarkRepository;
 import com.hackathon_5.Yogiyong_In.repository.FestivalRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +22,7 @@ import java.util.stream.Collectors;
 public class CalendarService {
 
     private final FestivalRepository festivalRepository;
+    private final BookmarkRepository bookmarkRepository;
     private final FestivalAiReviewService festivalAiReviewService;
 
     // 목록보기
@@ -110,5 +114,10 @@ public class CalendarService {
                 .imagePath(festival.getImagePath())
                 .aiReview(ai)
                 .build();
+    }
+
+    //전기간 기준 북마크 TOP 5 조회
+    public List<PopularFestivalDto> getPopularTop5() {
+        return bookmarkRepository.findPopularFestivals(PageRequest.of(0, 5));
     }
 }

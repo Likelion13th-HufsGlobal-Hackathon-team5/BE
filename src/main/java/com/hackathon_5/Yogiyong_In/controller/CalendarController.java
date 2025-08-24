@@ -3,6 +3,7 @@ package com.hackathon_5.Yogiyong_In.controller;
 import com.hackathon_5.Yogiyong_In.dto.Festival.FestivalInfoResDto;
 import com.hackathon_5.Yogiyong_In.dto.Festival.FestivalCalendarDto;
 import com.hackathon_5.Yogiyong_In.dto.ApiResponse;
+import com.hackathon_5.Yogiyong_In.dto.Festival.PopularFestivalDto;
 import com.hackathon_5.Yogiyong_In.service.CalendarService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -54,4 +55,13 @@ public class CalendarController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end) {
         return ResponseEntity.ok(ApiResponse.ok(calendarService.getRange(start, end)));
     }
+
+    @Operation(summary = "인기 축제 Top 5 (전기간)",
+            description = "북마크 수 기준 전기간 누적 TOP 5를 반환합니다.")
+    @GetMapping("/popular")
+    public ResponseEntity<ApiResponse<List<PopularFestivalDto>>> popularTop5() {
+        List<PopularFestivalDto> result = calendarService.getPopularTop5();
+        return ResponseEntity.ok(ApiResponse.ok(result, "인기 축제 TOP5"));
+    }
+
 }
