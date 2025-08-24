@@ -40,7 +40,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String token = extractToken(request);
 
-        // 이미 인증이 없고 토큰이 있는 경우만 검증 시도
+        // 가짜/빈 토큰은 즉시 패스
+        if (token == null || token.isBlank()
+                || "null".equalsIgnoreCase(token)
+                || "undefined".equalsIgnoreCase(token)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        // 토큰이 있고, 인증 정보가 없을 때에만 처리
         if (token != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             try {
                 Claims claims = Jwts.parserBuilder()
@@ -72,6 +80,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // ✅ 인가 판단은 SecurityConfig 쪽에서 하도록 넘긴다
         filterChain.doFilter(request, response);
     }
+
 
     private String extractToken(HttpServletRequest request) {
         // 1) Authorization 헤더 우선
