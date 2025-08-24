@@ -9,7 +9,7 @@ import com.google.genai.Client;
 @Configuration
 public class GeminiClientConfig {
 
-    @Value("${gemini.api-key}")
+    @Value("${google.api-key}")
     private String apiKey;
 
     @Bean
