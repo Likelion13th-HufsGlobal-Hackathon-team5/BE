@@ -17,11 +17,11 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static org.springframework.http.HttpStatus.FORBIDDEN;
-import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 
 @Tag(name = "Keyword", description = "키워드 조회/선택 API")
 @RestController
@@ -54,7 +54,8 @@ public class KeywordController {
         // SecurityContext에서 현재 사용자 ID (없으면 null)
         String userId = com.hackathon_5.Yogiyong_In.util.AuthUtils.currentUserIdOrNull();
 
-        int s = (size <= 0) ? 30 : Math.min(size, 100);
+        // ✅ 가독성 좋은 size 계산
+        int s = (size == null || size <= 0) ? 30 : Math.min(size, 100);
         boolean effectiveIncludeSelected = includeSelected && userId != null;
 
         return ResponseEntity.ok(
@@ -90,23 +91,23 @@ public class KeywordController {
     ) {
         String userId = com.hackathon_5.Yogiyong_In.util.AuthUtils.currentUserIdOrThrow();
 
-        keywordService.replaceUserKeywords(userId, body.getKeywordIds());
+        List<Integer> keywordIds = (body.getKeywordIds() == null) ? List.of() : body.getKeywordIds();
+        keywordService.replaceUserKeywords(userId, keywordIds);
+
+        // ✅ null 허용을 위해 HashMap 사용
+        Map<String, Object> responseBody = new HashMap<>();
+        responseBody.put("success", true);
+        responseBody.put("error", null);
 
         if ("names".equalsIgnoreCase(expand)) {
             var items = keywordService.getSelectedKeywordsWithNames(userId);
-            return ResponseEntity.ok(Map.of(
-                    "success", true,
-                    "data", Map.of("userId", userId, "selectedKeywords", items),
-                    "error", null
-            ));
+            if (items == null) items = List.of(); // null-safe
+            responseBody.put("data", Map.of("userId", userId, "selectedKeywords", items));
         } else {
-            List<Integer> ids = (body.getKeywordIds() == null) ? List.of() : body.getKeywordIds();
-            return ResponseEntity.ok(Map.of(
-                    "success", true,
-                    "data", Map.of("userId", userId, "selectedKeywordIds", ids),
-                    "error", null
-            ));
+            responseBody.put("data", Map.of("userId", userId, "selectedKeywordIds", keywordIds));
         }
+
+        return ResponseEntity.ok(responseBody);
     }
 
     @Deprecated
@@ -131,7 +132,9 @@ public class KeywordController {
             // 다른 사용자 리소스 수정 → 403이 의미상 더 적절
             throw new ResponseStatusException(FORBIDDEN, "다른 사용자의 키워드는 수정할 수 없습니다.");
         }
-        keywordService.replaceUserKeywords(userId, body.getKeywordIds());
+        // ✅ null-safe
+        List<Integer> ids = (body.getKeywordIds() == null) ? List.of() : body.getKeywordIds();
+        keywordService.replaceUserKeywords(userId, ids);
         return ResponseEntity.noContent().build();
     }
 }
