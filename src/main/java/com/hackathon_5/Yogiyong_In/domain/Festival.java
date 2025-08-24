@@ -29,7 +29,7 @@ public class Festival {
     @Column(name = "festival_end")
     private LocalDate festivalEnd;
 
-    @Column(name = "festival_loca", length = 50)
+    @Column(name = "festival_loca", length = 255)
     private String festivalLoca;
 
     @Column(name = "image_path", length = 1024)
