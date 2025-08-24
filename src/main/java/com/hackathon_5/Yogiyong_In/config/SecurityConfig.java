@@ -35,37 +35,37 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
                                                    JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
         http
+                // ✅ CSRF, CORS
                 .csrf(csrf -> csrf.disable())
                 .cors(Customizer.withDefaults())
+
+                // ✅ 세션 사용 안 함
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+                // ✅ 경로별 인가 정책
                 .authorizeHttpRequests(auth -> auth
-                        // ✅ 완전 공개
+                        // 완전 공개 (회원가입/로그인/중복체크 등)
                         .requestMatchers(
-                                // Swagger/OpenAPI
-                                "/v3/api-docs/**", "/api-docs/**", "/docs/**", "/swagger-ui/**", "/swagger-ui.html",
-                                // Auth
                                 "/api/auth/**",
-                                // Review & Festivals
+                                "/v3/api-docs/**", "/api-docs/**", "/docs/**", "/swagger-ui/**", "/swagger-ui.html",
                                 "/api/reviews", "/api/festivals/**",
-                                // Calendar & Images
                                 "/api/calendar/**",
-                                // AI
                                 "/api/summary/**",
-                                // Bookmark
                                 "/api/bookmarks", "/api/mypage/bookmarks",
-                                // Mypage (프로젝트 정책 유지)
                                 "/api/mypage/**"
                         ).permitAll()
 
-                        // ✅ 키워드: 조회(GET)만 공개, 저장/수정/삭제는 인증
+                        // 키워드 조회(GET)만 공개
                         .requestMatchers(HttpMethod.GET, "/api/keywords").permitAll()
 
-                        // ✅ 프리플라이트
+                        // Preflight 허용
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                        // 그 외 전부 인증
+                        // 나머지는 인증 필요
                         .anyRequest().authenticated()
                 )
+
+                // ✅ 예외 처리
                 .exceptionHandling(e -> e
                         .authenticationEntryPoint((req, res, ex) -> {
                             res.setStatus(HttpStatus.UNAUTHORIZED.value());
@@ -77,12 +77,16 @@ public class SecurityConfig {
                             res.setContentType("application/json;charset=UTF-8");
                             res.getWriter().write("{\"success\":false,\"message\":\"Forbidden\"}");
                         })
-                )
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                );
+
+        // ✅ JWT 필터 등록
+        // 단, auth 엔드포인트는 permitAll 이므로 필터 내부에서 걸러야 함
+        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
+    // ✅ CORS
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration cfg = new CorsConfiguration();
@@ -102,6 +106,7 @@ public class SecurityConfig {
         return source;
     }
 
+    // ✅ AuthenticationManager
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();

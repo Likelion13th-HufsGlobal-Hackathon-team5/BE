@@ -21,11 +21,23 @@ public class JwtTokenProvider {
     private final SecretKey key;
     private final long accessTokenValiditySeconds;
 
+
+
     public JwtTokenProvider(@Value("${jwt.secret}") String secret,
                             @Value("${jwt.access-token-validity-seconds}") long accessTokenValiditySeconds) {
         byte[] keyBytes = Decoders.BASE64.decode(secret);
         this.key = Keys.hmacShaKeyFor(keyBytes);
         this.accessTokenValiditySeconds = accessTokenValiditySeconds;
+    }
+
+
+    public String createAccessToken(String userId) {
+        // 기존 createToken 메소드를 호출하여 토큰을 생성합니다.
+        return createToken(userId, Map.of(), accessTokenValiditySeconds);
+    }
+
+    public long getAccessTokenValidityInSeconds() {
+        return this.accessTokenValiditySeconds;
     }
 
     public String createToken(String subject, Map<String, Object> claims, long validitySeconds) {

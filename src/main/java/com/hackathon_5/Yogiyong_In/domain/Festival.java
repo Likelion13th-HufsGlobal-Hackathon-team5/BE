@@ -3,6 +3,8 @@ package com.hackathon_5.Yogiyong_In.domain;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "festivals")
@@ -35,4 +37,11 @@ public class Festival {
     @Column(name = "image_path", length = 1024)
     private String imagePath;
 
+    @ManyToMany
+    @JoinTable(
+            name = "festival_keywords", // DB에 생성될 중간 연결 테이블 이름
+            joinColumns = @JoinColumn(name = "festival_id"),
+            inverseJoinColumns = @JoinColumn(name = "keyword_id")
+    )
+    private List<Keyword> keywords = new ArrayList<>();
 }

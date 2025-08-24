@@ -42,34 +42,22 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<AuthLoginResDto> login(@Valid @RequestBody AuthLoginReqDto req) {
 
-        User user = authService.login(req);
+        // 1. AuthService에서 모든 로직이 처리된 최종 응답 DTO를 받습니다.
+        AuthLoginResDto responseDto = authService.login(req);
 
-        String accessToken = jwtTokenProvider.createToken(
-                user.getUserId(),
-                java.util.Map.of("nickname", user.getNickname())
-        );
-
-        long maxAge = jwtTokenProvider.getAccessTokenValiditySeconds();
-
-        ResponseCookie cookie = ResponseCookie.from("ACCESS_TOKEN", accessToken)
+        // 2. DTO에 포함된 Access Token으로 쿠키를 생성합니다.
+        ResponseCookie cookie = ResponseCookie.from("ACCESS_TOKEN", responseDto.getAccessToken())
                 .httpOnly(true)
-                .secure(false) //// 추후 true 로 바꿔야해용
+                .secure(false) // HTTPS 적용 시 true로 변경
                 .sameSite("Lax")
                 .path("/")
-                .maxAge(maxAge)
+                .maxAge(responseDto.getExpiresIn())
                 .build();
 
-        AuthLoginResDto body = new AuthLoginResDto(
-                "Bearer",
-                accessToken,
-                maxAge,
-                user.getUserId(),
-                user.getNickname()
-        );
-
+        // 3. 쿠키는 헤더에 담고, DTO는 본문에 담아 최종 응답을 보냅니다.
         return ResponseEntity.ok()
                 .header("Set-Cookie", cookie.toString())
-                .body(body);
+                .body(responseDto);
     }
 
     //로그아웃

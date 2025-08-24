@@ -13,12 +13,11 @@ import java.util.List;
 @Repository
 public interface FestivalRepository extends JpaRepository<Festival, Integer> {
 
-    // 기존 메서드 ｓｔｒｉｎｇ 사용하면 데이터타입 안맞아서 이 부분 수정함
+    // --- 기존 메소드들은 그대로 유지 ---
     List<Festival> findByFestivalStartLessThanEqualAndFestivalEndGreaterThanEqual(
             LocalDate startDate, LocalDate endDate
     );
 
-    // 커스텀 JPQL
     @Query("""
       select new com.hackathon_5.Yogiyong_In.dto.Festival.FestivalCalendarDto(
          f.festivalId, f.festivalStart, f.festivalEnd
@@ -32,4 +31,8 @@ public interface FestivalRepository extends JpaRepository<Festival, Integer> {
             @Param("start") LocalDate start,
             @Param("end")   LocalDate end
     );
+
+    // ✅✅✅ 이 부분을 추가해주세요! ✅✅✅
+    // 특정 키워드 ID를 가진 축제 목록을 조회합니다.
+    List<Festival> findByKeywords_KeywordId(Integer keywordId);
 }

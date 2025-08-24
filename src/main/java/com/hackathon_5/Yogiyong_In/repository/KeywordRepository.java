@@ -1,5 +1,6 @@
 package com.hackathon_5.Yogiyong_In.repository;
 
+import com.hackathon_5.Yogiyong_In.domain.Festival;
 import com.hackathon_5.Yogiyong_In.domain.Keyword;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.*;
@@ -17,6 +18,6 @@ public interface KeywordRepository extends JpaRepository<Keyword, Integer> {
     """)
     List<Keyword> findScroll(@Param("cursor") Integer cursor, Pageable pageable);
 
-    // ✅ 추가
     List<Keyword> findByKeywordIdIn(List<Integer> keywordIds);
+
 }

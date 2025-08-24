@@ -136,6 +136,7 @@ public class FestivalRecommendService {
                 .festivalStart(f.getFestivalStart() != null ? f.getFestivalStart().toString() : null)
                 .festivalEnd(f.getFestivalEnd() != null ? f.getFestivalEnd().toString() : null)
                 .festivalLoca(f.getFestivalLoca())
+                .imagePath(f.getImagePath())
                 .build();
     }
 

@@ -1,14 +1,9 @@
 package com.hackathon_5.Yogiyong_In.service;
 
-import com.hackathon_5.Yogiyong_In.dto.Auth.AuthIdCheckReqDto;
-import com.hackathon_5.Yogiyong_In.dto.Auth.AuthIdCheckResDto;
-import com.hackathon_5.Yogiyong_In.dto.Auth.AuthLoginReqDto;
-import com.hackathon_5.Yogiyong_In.dto.Auth.AuthNickCheckReqDto;
-import com.hackathon_5.Yogiyong_In.dto.Auth.AuthNickCheckResDto;
-import com.hackathon_5.Yogiyong_In.dto.Auth.UserCreateReqDto;
-import com.hackathon_5.Yogiyong_In.dto.Auth.UserCreateResDto;
+import com.hackathon_5.Yogiyong_In.dto.Auth.*;
 import com.hackathon_5.Yogiyong_In.config.JwtTokenProvider;
 import com.hackathon_5.Yogiyong_In.domain.User;
+import com.hackathon_5.Yogiyong_In.repository.UserKeywordRepository;
 import com.hackathon_5.Yogiyong_In.repository.UserRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -29,6 +24,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
+    private final UserKeywordRepository userKeywordRepository;
 
     // 회원가입
     @Transactional
@@ -120,9 +116,10 @@ public class AuthService {
 
     // 로그인 검증 (쿠키 방식: 토큰 발급/반환은 컨트롤러에서 수행)
     @Transactional(readOnly = true)
-    public User login(AuthLoginReqDto req) {
+    public AuthLoginResDto login(AuthLoginReqDto req) {
         String userId = req.getUserId().trim();
 
+        // 1. 사용자 인증
         User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new IllegalArgumentException("아이디 또는 비밀번호가 올바르지 않습니다."));
 
@@ -130,6 +127,23 @@ public class AuthService {
             throw new IllegalArgumentException("아이디 또는 비밀번호가 올바르지 않습니다.");
         }
 
-        return user;
+        // 2. AI 키워드 사용 이력 확인
+        // 괄호 오타를 수정했습니다.
+        boolean hasHistory = userKeywordRepository.existsByUser_UserIdAndIsSelectedTrue(userId);
+
+        // 3. JWT 토큰 생성
+        String accessToken = jwtTokenProvider.createAccessToken(user.getUserId());
+        long expiresIn = jwtTokenProvider.getAccessTokenValidityInSeconds();
+
+        // 4. 최종 응답 DTO 생성하여 반환
+        return AuthLoginResDto.builder()
+                .tokenType("Bearer")
+                .accessToken(accessToken)
+                .expiresIn(expiresIn)
+                .userId(user.getUserId())
+                .nickname(user.getNickname())
+                .hasAiKeywordHistory(hasHistory) // 확인된 이력 정보 추가
+                .build();
     }
+
 }

@@ -38,6 +38,9 @@ public interface UserKeywordRepository extends JpaRepository<UserKeyword, Intege
     // 현재 페이지 키워드들 중 선택된 것들
     List<UserKeyword> findByUser_UserIdAndKeyword_KeywordIdIn(String userId, Collection<Integer> keywordIds);
 
-    // ✅ 추가: 해당 유저의 "현재 선택된" 모든 키워드 (expand=names에서 사용)
+    // 해당 유저의 "현재 선택된" 모든 키워드 (expand=names에서 사용)
     List<UserKeyword> findByUser_UserIdAndIsSelectedTrue(String userId);
+
+    // ✅✅✅ 로그인 시 AI 키워드 사용 이력 확인용 메소드 (올바르게 수정됨) ✅✅✅
+    boolean existsByUser_UserIdAndIsSelectedTrue(String userId);
 }
