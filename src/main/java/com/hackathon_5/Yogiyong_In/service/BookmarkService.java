@@ -29,7 +29,7 @@ public class BookmarkService {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 축제입니다."));
 
         return bookmarkRepository.findByUserAndFestival(user, festival)
-                .map(b -> new BookmarkCreateResDto(false, b.getId()))
+                .map(b -> new BookmarkCreateResDto(false, b.getId())) // 이미 있으면 false
                 .orElseGet(() -> {
                     Bookmark saved = bookmarkRepository.save(Bookmark.builder()
                             .user(user)
@@ -55,5 +55,17 @@ public class BookmarkService {
                 .count(items.size())
                 .items(items)
                 .build();
+    }
+
+    public void deleteBookmark(String userId, Integer festivalId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+        Festival festival = festivalRepository.findById(festivalId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 축제입니다."));
+
+        Bookmark bookmark = bookmarkRepository.findByUserAndFestival(user, festival)
+                .orElseThrow(() -> new IllegalArgumentException("해당 북마크가 존재하지 않습니다."));
+
+        bookmarkRepository.delete(bookmark);
     }
 }

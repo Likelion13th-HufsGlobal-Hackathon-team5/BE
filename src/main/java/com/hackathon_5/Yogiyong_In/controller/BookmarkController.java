@@ -11,7 +11,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+
+import java.security.Principal;
 
 @Tag(name = "Bookmark", description = "북마크 API")
 @RestController
@@ -51,4 +56,15 @@ public class BookmarkController {
             return ApiResponse.fail(e.getMessage());
         }
     }
+
+    @Operation(summary = "축제 북마크 삭제", description = "축제 ID로 북마크를 삭제합니다.")
+    @DeleteMapping("/{festivalId}")
+    public ResponseEntity<Void> deleteBookmark(Principal principal,
+                                               @PathVariable Integer festivalId) {
+        String userId = principal.getName(); // JWT에서 추출된 username
+        bookmarkService.deleteBookmark(userId, festivalId);
+        return ResponseEntity.noContent().build();
+    }
+
+
 }
