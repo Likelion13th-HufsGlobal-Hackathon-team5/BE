@@ -26,19 +26,21 @@ public class CalendarController {
         return ResponseEntity.ok(calendarService.getAllFestivals());
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<FestivalInfoResDto> getFestivalById(@PathVariable Integer id) {
-        return calendarService.getFestivalById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    @GetMapping(params = {"year", "month", "date"})
+    @Operation(summary = "특정 날짜의 축제 조회")
+    @GetMapping("/by-date")
     public ResponseEntity<List<FestivalInfoResDto>> getFestivalsByDate(
             @RequestParam int year,
             @RequestParam int month,
             @RequestParam int date) {
         return ResponseEntity.ok(calendarService.getFestivalsByDate(year, month, date));
+    }
+
+    @Operation(summary = "축제 상세 조회")
+    @GetMapping("/{id}")
+    public ResponseEntity<FestivalInfoResDto> getFestivalById(@PathVariable Integer id) {
+        return calendarService.getFestivalById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @Operation(summary = "월별 축제 조회(달력용)")

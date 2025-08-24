@@ -40,20 +40,27 @@ public class SecurityConfig {
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/v3/api-docs/**",
-                                "/api-docs/**",
-                                "/docs/**",
-                                "/swagger-ui/**",
-                                "/swagger-ui.html"
+                                // Swagger/OpenAPI
+                                "/v3/api-docs/**", "/api-docs/**", "/docs/**", "/swagger-ui/**", "/swagger-ui.html",
+                                // Auth
+                                "/api/auth/**",
+                                // Review & Festivals
+                                "/api/reviews", "/api/festivals/**",
+                                // Calendar & Images
+                                "/api/calendar/**",
+                                // AI
+                                "/api/summary/**",
+                                // Bookmark
+                                "/api/bookmarks", "/api/mypage/bookmarks",
+                                // Keyword
+                                "/api/keywords", "/api/me/selected-keywords", "/api/users/*/keywords",
+                                // Mypage
+                                "/api/mypage/**"
                         ).permitAll()
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/reviews").permitAll()
-                        .requestMatchers(HttpMethod.GET,  "/api/reviews/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/festivals/*/reviews").permitAll()
-                        .requestMatchers(HttpMethod.GET,  "/api/festivals/*/reviews/**").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .anyRequest().authenticated()
                 )
+
                 .exceptionHandling(e -> e
                         .authenticationEntryPoint((req, res, ex) -> res.setStatus(HttpStatus.UNAUTHORIZED.value()))
                         .accessDeniedHandler((req, res, ex) -> res.setStatus(HttpStatus.FORBIDDEN.value()))

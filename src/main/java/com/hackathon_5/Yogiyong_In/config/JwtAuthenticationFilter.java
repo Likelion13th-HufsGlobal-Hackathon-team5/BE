@@ -27,6 +27,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         this.jwtTokenProvider = jwtTokenProvider;
     }
 
+    // ✅ CORS preflight는 필터 스킵
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        return "OPTIONS".equalsIgnoreCase(request.getMethod());
+    }
+
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
@@ -34,6 +40,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String token = extractToken(request);
 
+        // 이미 인증이 없고 토큰이 있는 경우만 검증 시도
         if (token != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             try {
                 Claims claims = Jwts.parserBuilder()
@@ -44,40 +51,34 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 String userId = claims.getSubject();
 
-                if (userId != null) {
-                    UsernamePasswordAuthenticationToken authToken =
-                            new UsernamePasswordAuthenticationToken(
-                                    userId,
-                                    null,
-                                    Collections.emptyList() // 필요하다면 roles 매핑
-                            );
-                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
-                }
+                UsernamePasswordAuthenticationToken authToken =
+                        new UsernamePasswordAuthenticationToken(userId, null, Collections.emptyList());
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authToken);
 
             } catch (ExpiredJwtException e) {
+                // ⛔️ 401 직접 전송 금지 — 컨텍스트만 클리어하고 체인 진행
                 log.warn("토큰 만료: {}", e.getMessage());
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token expired");
-                return;
+                SecurityContextHolder.clearContext(); // was: response.sendError(401, "Token expired")
+                // return; // disabled to allow chain to continue
             } catch (JwtException e) {
+                // ⛔️ 401 직접 전송 금지 — 컨텍스트만 클리어하고 체인 진행
                 log.warn("유효하지 않은 토큰: {}", e.getMessage());
-                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token");
-                return;
+                SecurityContextHolder.clearContext(); // was: response.sendError(401, "Invalid token")
+                // return; // disabled to allow chain to continue
             }
-
         }
 
+        // ✅ 인가 판단은 SecurityConfig 쪽에서 하도록 넘긴다
         filterChain.doFilter(request, response);
     }
 
     private String extractToken(HttpServletRequest request) {
-        // 1) Authorization 헤더
+        // 1) Authorization 헤더 우선
         String header = request.getHeader("Authorization");
-        log.info("[AUTH] Authorization header: {}", header);
         if (header != null && header.startsWith("Bearer ")) {
             return header.substring(7);
         }
-
         // 2) ACCESS_TOKEN 쿠키
         if (request.getCookies() != null) {
             for (Cookie cookie : request.getCookies()) {
