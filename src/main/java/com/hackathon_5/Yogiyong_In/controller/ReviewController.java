@@ -11,7 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "Review", description = "리뷰 조회 API")
+@Tag(name = "Review", description = "리뷰 조회/작성 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
@@ -27,17 +27,30 @@ public class ReviewController {
         return ResponseEntity.ok(reviewService.createReview(reqDto));
     }
 
-    @Operation(summary = "축제 리뷰 목록(스크롤)",
-            description = "festivalId에 대한 리뷰를 cursor(마지막 reviewId) 이후부터 size만큼 반환.")
+    @Operation(
+            summary = "축제 리뷰 목록(스크롤)",
+            description = "festivalId에 대한 리뷰를 cursor(마지막 reviewId) 이후부터 size만큼 반환합니다. " +
+                    "프론트에서 cursor가 비어 있을 경우(?cursor=)에도 안전하게 처리됩니다."
+    )
     @GetMapping("/festivals/{festivalId}/reviews")
     public ResponseEntity<ReviewScrollResDto> getFestivalReviews(
             @PathVariable Integer festivalId,
-            @Parameter(description = "이 커서(마지막 reviewId) 이후부터 조회") @RequestParam(required = false) Integer cursor,
-            @Parameter(description = "가져올 개수(기본 20, 최대 100)") @RequestParam(defaultValue = "20") Integer size
+            // 중요: 빈 문자열(?cursor=)이 들어와도 오류 나지 않도록 문자열로 받고 내부에서 파싱
+            @Parameter(description = "이 커서(마지막 reviewId) 이후부터 조회. 빈 값이면 전체 시작(null).")
+            @RequestParam(name = "cursor", required = false) String cursor,
+            @Parameter(description = "가져올 개수(기본 20, 최대 100)")
+            @RequestParam(name = "size", defaultValue = "20") Integer size
     ) {
+        Integer cursorId = parseNullableInt(cursor); // "" -> null
         int s = (size == null || size <= 0) ? 20 : Math.min(size, 100);
+
         return ResponseEntity.ok(
-                reviewService.getReviewsScroll(festivalId, cursor, s)
+                reviewService.getReviewsScroll(festivalId, cursorId, s)
         );
+    }
+
+    private Integer parseNullableInt(String value) {
+        if (value == null || value.isBlank()) return null;
+        return Integer.valueOf(value.trim());
     }
 }

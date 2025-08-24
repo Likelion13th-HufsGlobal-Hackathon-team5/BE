@@ -1,5 +1,6 @@
 package com.hackathon_5.Yogiyong_In.service;
 
+import com.hackathon_5.Yogiyong_In.dto.AiReview.ReviewSummarizeResDto;
 import com.hackathon_5.Yogiyong_In.dto.Festival.FestivalCalendarDto;
 import com.hackathon_5.Yogiyong_In.dto.Festival.FestivalInfoResDto;
 import com.hackathon_5.Yogiyong_In.domain.Festival;
@@ -78,7 +79,7 @@ public class CalendarService {
                 .collect(Collectors.toList());
     }
 
-    //범위 조회(달력용)
+    // 범위 조회(달력용)
     public List<FestivalCalendarDto> getRange(LocalDate start, LocalDate end) {
         return festivalRepository.findForCalendar(start, end)
                 .stream()
@@ -98,7 +99,16 @@ public class CalendarService {
         String ai = null;
         if (withAi) {
             try {
-                ai = festivalAiReviewService.generateFestivalReview(festival.getFestivalDesc());
+                // 축제ID 기반으로 리뷰를 모아 요약
+                ReviewSummarizeResDto res = festivalAiReviewService.summarizeFestival(
+                        festival.getFestivalId(),
+                        true,   // includeQuotes
+                        6,      // topKAspects
+                        false   // forceRefresh
+                );
+                ai = (res != null && res.getSummary() != null && !res.getSummary().isBlank())
+                        ? res.getSummary().trim()
+                        : "아직 요약이 준비되지 않았습니다.";
             } catch (Exception e) {
                 ai = "AI 리뷰 생성에 실패했습니다.";
             }
@@ -116,7 +126,7 @@ public class CalendarService {
                 .build();
     }
 
-    //전기간 기준 북마크 TOP 5 조회
+    // 전기간 기준 북마크 TOP 5 조회
     public List<PopularFestivalDto> getPopularTop5() {
         return bookmarkRepository.findPopularFestivals(PageRequest.of(0, 5));
     }
