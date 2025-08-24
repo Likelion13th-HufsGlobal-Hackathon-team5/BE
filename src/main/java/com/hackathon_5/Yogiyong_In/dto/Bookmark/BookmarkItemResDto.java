@@ -6,4 +6,5 @@ import lombok.*;
 public class BookmarkItemResDto {
     private Long bookmarkId;
     private BookmarkFestivalDto festival;
+
 }

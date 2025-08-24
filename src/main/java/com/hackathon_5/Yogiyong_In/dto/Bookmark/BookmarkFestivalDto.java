@@ -20,9 +20,11 @@ public class BookmarkFestivalDto {
                 .festivalId(f.getFestivalId())
                 .festivalName(f.getFestivalName())
                 .festivalDesc(f.getFestivalDesc())
-                .festivalStart(f.getFestivalStart().toString())
-                .festivalEnd(f.getFestivalEnd().toString())
+                .festivalStart(f.getFestivalStart() != null ? f.getFestivalStart().toString() : null) // ✅ null-safe
+                .festivalEnd(f.getFestivalEnd() != null ? f.getFestivalEnd().toString() : null)       // ✅ null-safe
+                .festivalLoca(f.getFestivalLoca())
                 .imagePath(f.getImagePath())
                 .build();
     }
+
 }
