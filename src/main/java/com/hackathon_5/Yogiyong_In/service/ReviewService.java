@@ -7,10 +7,10 @@ import com.hackathon_5.Yogiyong_In.domain.User;
 import com.hackathon_5.Yogiyong_In.repository.FestivalRepository;
 import com.hackathon_5.Yogiyong_In.repository.ReviewRepository;
 import com.hackathon_5.Yogiyong_In.repository.UserRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.format.DateTimeFormatter;
 import java.util.stream.Collectors;
@@ -23,10 +23,10 @@ public class ReviewService {
     private final UserRepository userRepository;
     private final FestivalRepository festivalRepository;
 
+    @Transactional(readOnly = true)
     public ReviewScrollResDto getReviewsScroll(Integer festivalId, Integer cursor, int size) {
         int s = size <= 0 ? 20 : Math.min(size, 100);
 
-        // 커서 기반 조회 (Repository에서 커서 조건과 정렬 보장 필요)
         var slice = reviewRepository.findScrollByFestival(festivalId, cursor, PageRequest.of(0, s + 1));
         boolean hasNext = slice.size() > s;
         if (hasNext) slice = slice.subList(0, s);

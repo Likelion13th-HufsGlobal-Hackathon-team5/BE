@@ -13,6 +13,7 @@ public interface ReviewRepository extends JpaRepository<Review, Integer> {
     @Query("""
       select r
         from Review r
+        join fetch r.user u
        where r.festival.festivalId = :festivalId
          and (:cursor is null or r.reviewId > :cursor)
        order by r.reviewId asc
@@ -23,6 +24,11 @@ public interface ReviewRepository extends JpaRepository<Review, Integer> {
             Pageable pageable
     );
 
-    @Query("select r.reviewCont from Review r where r.festival.festivalId = :festivalId order by r.createdAt desc")
+    @Query("""
+        select r.reviewCont
+          from Review r
+         where r.festival.festivalId = :festivalId
+         order by r.createdAt desc
+    """)
     List<String> findTextsByFestivalId(@Param("festivalId") Integer festivalId);
 }

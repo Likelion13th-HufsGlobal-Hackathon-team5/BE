@@ -27,7 +27,7 @@ public class SecurityConfig {
     private final JwtTokenProvider jwtTokenProvider;
 
     @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter(JwtTokenProvider jwtTokenProvider) {
+    public JwtAuthenticationFilter jwtAuthenticationFilter() {
         return new JwtAuthenticationFilter(jwtTokenProvider);
     }
 
@@ -39,6 +39,7 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        // ✅ 완전 공개
                         .requestMatchers(
                                 // Swagger/OpenAPI
                                 "/v3/api-docs/**", "/api-docs/**", "/docs/**", "/swagger-ui/**", "/swagger-ui.html",
@@ -52,32 +53,50 @@ public class SecurityConfig {
                                 "/api/summary/**",
                                 // Bookmark
                                 "/api/bookmarks", "/api/mypage/bookmarks",
-                                // Keyword
-                                "/api/keywords", "/api/me/selected-keywords", "/api/users/*/keywords",
-                                // Mypage
+                                // Mypage (프로젝트 정책 유지)
                                 "/api/mypage/**"
                         ).permitAll()
+
+                        // ✅ 키워드: 조회(GET)만 공개, 저장/수정/삭제는 인증
+                        .requestMatchers(HttpMethod.GET, "/api/keywords").permitAll()
+
+                        // ✅ 프리플라이트
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                        // 그 외 전부 인증
                         .anyRequest().authenticated()
                 )
-
                 .exceptionHandling(e -> e
-                        .authenticationEntryPoint((req, res, ex) -> res.setStatus(HttpStatus.UNAUTHORIZED.value()))
-                        .accessDeniedHandler((req, res, ex) -> res.setStatus(HttpStatus.FORBIDDEN.value()))
+                        .authenticationEntryPoint((req, res, ex) -> {
+                            res.setStatus(HttpStatus.UNAUTHORIZED.value());
+                            res.setContentType("application/json;charset=UTF-8");
+                            res.getWriter().write("{\"success\":false,\"message\":\"Unauthorized\"}");
+                        })
+                        .accessDeniedHandler((req, res, ex) -> {
+                            res.setStatus(HttpStatus.FORBIDDEN.value());
+                            res.setContentType("application/json;charset=UTF-8");
+                            res.getWriter().write("{\"success\":false,\"message\":\"Forbidden\"}");
+                        })
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
-
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration cfg = new CorsConfiguration();
-        cfg.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:8080", "http://localhost:8081"));
-        cfg.setAllowedMethods(List.of("GET","POST","PUT","PATCH","DELETE","OPTIONS"));
+        cfg.setAllowedOrigins(List.of(
+                "http://localhost:3000",
+                "http://localhost:8080",
+                "http://localhost:8081",
+                "http://localhost:5173",
+                "http://127.0.0.1:5173"
+        ));
+        cfg.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         cfg.setAllowedHeaders(List.of("*"));
         cfg.setAllowCredentials(true);
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", cfg);
         return source;
