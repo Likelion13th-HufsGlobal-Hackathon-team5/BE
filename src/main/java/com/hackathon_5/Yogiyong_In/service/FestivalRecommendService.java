@@ -47,6 +47,9 @@ public class FestivalRecommendService {
                 .filter(Objects::nonNull).map(String::trim)
                 .filter(s -> !s.isBlank()).distinct().toList();
 
+        // [ADD] ✅ 키워드로 제목 생성
+        String title = "'" + String.join(", ", keywordNames) + "' 축제";
+
         var keywordSlugs = selected.stream() // 내부 로직용(한글 slug)
                 .map(uk -> uk.getKeyword().getSlug())
                 .filter(Objects::nonNull).map(String::trim)
@@ -54,8 +57,13 @@ public class FestivalRecommendService {
 
         if (keywordNames.isEmpty()) {
             log.debug("[AI-RECO] userId={} has no selected keywords", userId);
+            // [FIX] ✅ 키워드가 없을 때도 title 필드를 포함하도록 수정
             return new FestivalRecommendResult(
-                    FestivalRecommendGetResDto.builder().items(List.of()).totalCount(0).build(),
+                    FestivalRecommendGetResDto.builder()
+                            .title("추천 축제") // 기본 제목 설정
+                            .items(List.of())
+                            .totalCount(0)
+                            .build(),
                     "선택된 키워드가 없어 추천 결과가 없습니다."
             );
         }
@@ -64,8 +72,13 @@ public class FestivalRecommendService {
         var all = festivalRepository.findAll();
         if (all.isEmpty()) {
             log.debug("[AI-RECO] No festivals in catalog");
+            // [FIX] ✅ 데이터가 없을 때도 title 필드를 포함하도록 수정
             return new FestivalRecommendResult(
-                    FestivalRecommendGetResDto.builder().items(List.of()).totalCount(0).build(),
+                    FestivalRecommendGetResDto.builder()
+                            .title(title)
+                            .items(List.of())
+                            .totalCount(0)
+                            .build(),
                     "등록된 축제 데이터가 없어 추천할 수 없습니다."
             );
         }
@@ -93,8 +106,13 @@ public class FestivalRecommendService {
         String aiText = callGemini(prompt);
         if (aiText.isBlank()) {
             log.warn("[AI-RECO] Empty response from Gemini");
+            // [FIX] ✅ AI 응답이 없을 때도 title 필드를 포함하도록 수정
             return new FestivalRecommendResult(
-                    FestivalRecommendGetResDto.builder().items(List.of()).totalCount(0).build(),
+                    FestivalRecommendGetResDto.builder()
+                            .title(title)
+                            .items(List.of())
+                            .totalCount(0)
+                            .build(),
                     "AI 응답이 비어 있어 추천 결과가 없습니다."
             );
         }
@@ -103,8 +121,13 @@ public class FestivalRecommendService {
         List<Integer> ids = parseFestivalIds(aiText);
         if (ids.isEmpty()) {
             log.warn("[AI-RECO] No ids parsed from Gemini response: {}", aiText);
+            // [FIX] ✅ 파싱 실패 시에도 title 필드를 포함하도록 수정
             return new FestivalRecommendResult(
-                    FestivalRecommendGetResDto.builder().items(List.of()).totalCount(0).build(),
+                    FestivalRecommendGetResDto.builder()
+                            .title(title)
+                            .items(List.of())
+                            .totalCount(0)
+                            .build(),
                     "AI 응답을 해석하지 못해 추천 결과가 없습니다."
             );
         }
@@ -119,7 +142,9 @@ public class FestivalRecommendService {
                 .map(this::toItemDto)
                 .toList();
 
+        // [FIX] ✅ 최종 반환 DTO에 생성한 title 추가
         var data = FestivalRecommendGetResDto.builder()
+                .title(title)
                 .items(items)
                 .totalCount(items.size())
                 .build();
@@ -127,6 +152,8 @@ public class FestivalRecommendService {
         String msg = items.isEmpty() ? "조건에 맞는 추천 축제가 없습니다." : null;
         return new FestivalRecommendResult(data, msg);
     }
+
+    // --- 이하 다른 메소드들은 그대로 유지 ---
 
     private FestivalRecommendGetItemDto toItemDto(Festival f) {
         return FestivalRecommendGetItemDto.builder()
