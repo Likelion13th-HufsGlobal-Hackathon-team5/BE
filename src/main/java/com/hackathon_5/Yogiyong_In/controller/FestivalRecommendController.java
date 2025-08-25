@@ -2,7 +2,7 @@ package com.hackathon_5.Yogiyong_In.controller;
 
 import com.hackathon_5.Yogiyong_In.dto.ApiResponse;
 import com.hackathon_5.Yogiyong_In.dto.AiRecommend.FestivalRecommendGetResDto;
-import com.hackathon_5.Yogiyong_In.dto.Festival.FestivalsByKeywordResDto; // import 추가
+import com.hackathon_5.Yogiyong_In.dto.Festival.FestivalsByKeywordResDto;
 import com.hackathon_5.Yogiyong_In.service.FestivalRecommendService;
 import com.hackathon_5.Yogiyong_In.service.FestivalService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,28 +26,21 @@ public class FestivalRecommendController {
     private final FestivalRecommendService recommendService;
     private final FestivalService festivalService;
 
+    //  [수정] recommend 메소드를 아래 내용으로 교체했습니다.
     @Operation(
-            summary = "AI 축제 추천",
-            description = "로그인한 사용자의 선택 키워드를 기반으로 AI가 축제를 추천합니다.",
+            summary = "AI 축제 추천 (키워드별 그룹)",
+            description = "로그인한 사용자의 선택 키워드별로 AI가 추천하는 축제 목록을 그룹화하여 반환합니다.",
             security = { @SecurityRequirement(name = "bearerAuth") }
     )
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/recommend")
-    public ResponseEntity<ApiResponse<FestivalRecommendGetResDto>> recommend(
+    public ApiResponse<List<FestivalRecommendGetResDto>> recommend(
             Authentication authentication,
             @RequestParam(name = "limit", required = false, defaultValue = "5") Integer limit
     ) {
         String userId = authentication.getName();
-        var result = recommendService.recommend(userId, limit);
-        var body = ApiResponse.ok(result.data());
-
-        if (result.message() == null || result.message().isBlank()) {
-            return ResponseEntity.ok(body);
-        } else {
-            return ResponseEntity.ok()
-                    .header("X-Info-Message", result.message())
-                    .body(body);
-        }
+        List<FestivalRecommendGetResDto> result = recommendService.recommend(userId, limit);
+        return ApiResponse.ok(result);
     }
 
     @Operation(
