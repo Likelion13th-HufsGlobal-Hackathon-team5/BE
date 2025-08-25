@@ -5,9 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.genai.Client;
 import com.google.genai.types.GenerateContentConfig;
 import com.google.genai.types.GenerateContentResponse;
+import com.hackathon_5.Yogiyong_In.domain.Festival;
+import com.hackathon_5.Yogiyong_In.domain.UserKeyword;
 import com.hackathon_5.Yogiyong_In.dto.AiRecommend.FestivalRecommendGetItemDto;
 import com.hackathon_5.Yogiyong_In.dto.AiRecommend.FestivalRecommendGetResDto;
-import com.hackathon_5.Yogiyong_In.domain.Festival;
 import com.hackathon_5.Yogiyong_In.repository.FestivalRepository;
 import com.hackathon_5.Yogiyong_In.repository.UserKeywordRepository;
 import lombok.RequiredArgsConstructor;
@@ -37,96 +38,80 @@ public class FestivalRecommendService {
 
     private final ObjectMapper om = new ObjectMapper();
 
+    // ✅ [수정] recommend 메소드를 아래 내용으로 완전히 교체합니다.
     @Transactional(readOnly = true)
-    public FestivalRecommendResult recommend(String userId, Integer limit) {
+    public List<FestivalRecommendGetResDto> recommend(String userId, Integer limit) {
+        // 1) 사용자 선택 키워드(엔티티) 목록 가져오기
+        List<UserKeyword> selectedUserKeywords = userKeywordRepository.findByUser_UserIdAndIsSelectedTrue(userId);
 
-        // 1) 사용자 선택 키워드(표시명 + slug)
-        var selected = userKeywordRepository.findByUser_UserIdAndIsSelectedTrue(userId);
-        var keywordNames = selected.stream() // 프롬프트 표기용
-                .map(uk -> uk.getKeyword().getKeywordName())
-                .filter(Objects::nonNull).map(String::trim)
-                .filter(s -> !s.isBlank()).distinct().toList();
-
-        var keywordSlugs = selected.stream() // 내부 로직용(한글 slug)
-                .map(uk -> uk.getKeyword().getSlug())
-                .filter(Objects::nonNull).map(String::trim)
-                .filter(s -> !s.isBlank()).distinct().toList();
-
-        if (keywordNames.isEmpty()) {
+        if (selectedUserKeywords.isEmpty()) {
             log.debug("[AI-RECO] userId={} has no selected keywords", userId);
-            return new FestivalRecommendResult(
-                    FestivalRecommendGetResDto.builder().items(List.of()).totalCount(0).build(),
-                    "선택된 키워드가 없어 추천 결과가 없습니다."
-            );
+            return new ArrayList<>(); // 키워드가 없으면 빈 리스트 반환
         }
 
-        // 2) 축제 카탈로그 로딩
-        var all = festivalRepository.findAll();
-        if (all.isEmpty()) {
-            log.debug("[AI-RECO] No festivals in catalog");
-            return new FestivalRecommendResult(
-                    FestivalRecommendGetResDto.builder().items(List.of()).totalCount(0).build(),
-                    "등록된 축제 데이터가 없어 추천할 수 없습니다."
-            );
-        }
-
-        // 2-1) 계절 우선 선별/정렬
-        var seasonMonths = seasonMonthsBySlugs(keywordSlugs); // 예) [3,4,5] 등
-        List<Festival> catalog = all;
-        if (!seasonMonths.isEmpty()) {
-            // 계절 점수 + 보조 점수(이름/설명에 계절 단어가 있으면 소폭 가점)
-            catalog = all.stream()
-                    .sorted(Comparator.comparingInt((Festival f) -> seasonScore(f, seasonMonths))
-                            .thenComparingInt(f -> textSeasonBias(f, seasonMonths))
-                            .reversed())
-                    .limit(CATALOG_MAX)
-                    .toList();
-        } else {
-            catalog = all.stream().limit(CATALOG_MAX).toList();
-        }
-
-        // 3) 프롬프트
-        int topN = (limit == null || limit <= 0) ? DEFAULT_TOP_N : limit;
-        String prompt = buildPromptIdsOnly(keywordNames, seasonMonths, catalog, topN);
-
-        // 4) Gemini 호출
-        String aiText = callGemini(prompt);
-        if (aiText.isBlank()) {
-            log.warn("[AI-RECO] Empty response from Gemini");
-            return new FestivalRecommendResult(
-                    FestivalRecommendGetResDto.builder().items(List.of()).totalCount(0).build(),
-                    "AI 응답이 비어 있어 추천 결과가 없습니다."
-            );
-        }
-
-        // 5) 응답 파싱
-        List<Integer> ids = parseFestivalIds(aiText);
-        if (ids.isEmpty()) {
-            log.warn("[AI-RECO] No ids parsed from Gemini response: {}", aiText);
-            return new FestivalRecommendResult(
-                    FestivalRecommendGetResDto.builder().items(List.of()).totalCount(0).build(),
-                    "AI 응답을 해석하지 못해 추천 결과가 없습니다."
-            );
-        }
-
-        // 6) 매핑 → DTO
-        Map<Integer, Festival> byId = catalog.stream()
+        // 2) 전체 축제 카탈로그 한 번만 로딩해서 Map으로 변환 (조회 성능 향상)
+        Map<Integer, Festival> festivalMap = festivalRepository.findAll().stream()
                 .collect(Collectors.toMap(Festival::getFestivalId, f -> f));
 
-        var items = ids.stream()
-                .map(byId::get)
-                .filter(Objects::nonNull)
-                .map(this::toItemDto)
-                .toList();
+        if (festivalMap.isEmpty()) {
+            log.debug("[AI-RECO] No festivals in catalog");
+            return new ArrayList<>();
+        }
+        List<Festival> allFestivals = new ArrayList<>(festivalMap.values());
 
-        var data = FestivalRecommendGetResDto.builder()
-                .items(items)
-                .totalCount(items.size())
-                .build();
+        // 3) 최종 결과를 담을 리스트 생성 (반환 타입이 List<FestivalRecommendGetResDto>로 변경)
+        List<FestivalRecommendGetResDto> finalResult = new ArrayList<>();
 
-        String msg = items.isEmpty() ? "조건에 맞는 추천 축제가 없습니다." : null;
-        return new FestivalRecommendResult(data, msg);
+        // 4) ★ 각 키워드별로 루프를 돌며 AI 추천 요청
+        for (UserKeyword userKeyword : selectedUserKeywords) {
+            String keywordName = userKeyword.getKeyword().getKeywordName();
+            String keywordSlug = userKeyword.getKeyword().getSlug();
+
+            // 4-1) 현재 키워드로 제목 생성
+            String title = "'" + keywordName + "' 축제";
+
+            // 4-2) 현재 키워드 하나만으로 AI 프롬프트 생성
+            String prompt = buildPromptForKeyword(keywordName, keywordSlug, allFestivals, limit);
+
+            // 4-3) AI 호출 및 ID 파싱
+            String aiText = callGemini(prompt);
+            List<Integer> ids = parseFestivalIds(aiText);
+
+            if (ids.isEmpty()) {
+                continue; // 현재 키워드에 대한 추천 결과가 없으면 다음 키워드로 넘어감
+            }
+
+            // 4-4) ID를 축제 정보(DTO)로 변환
+            var items = ids.stream()
+                    .map(festivalMap::get)
+                    .filter(Objects::nonNull)
+                    .map(this::toItemDto)
+                    .toList();
+
+            // 4-5) 현재 키워드 그룹을 FestivalRecommendGetResDto에 담아 최종 리스트에 추가
+            if (!items.isEmpty()) {
+                finalResult.add(
+                        FestivalRecommendGetResDto.builder()
+                                .title(title)
+                                .items(items)
+                                .totalCount(items.size())
+                                .build()
+                );
+            }
+        }
+
+        return finalResult;
     }
+
+    // ✅ [추가] 루프 안에서 프롬프트를 만드는 로직을 별도 메소드로 분리
+    private String buildPromptForKeyword(String keywordName, String keywordSlug, List<Festival> allFestivals, Integer limit) {
+        var seasonMonths = seasonMonthsBySlugs(List.of(keywordSlug));
+        List<Festival> catalogForPrompt = allFestivals.stream().limit(CATALOG_MAX).toList();
+        int topN = (limit == null || limit <= 0) ? DEFAULT_TOP_N : limit;
+        return buildPromptIdsOnly(List.of(keywordName), seasonMonths, catalogForPrompt, topN);
+    }
+
+    // --- 이하 다른 메소드들은 그대로 유지 ---
 
     private FestivalRecommendGetItemDto toItemDto(Festival f) {
         return FestivalRecommendGetItemDto.builder()
@@ -211,9 +196,6 @@ public class FestivalRecommendService {
         }
     }
 
-    // ---------- 계절 매핑/스코어링 유틸 ----------
-
-    /** 선택한 slug(한글) 목록에서 계절 월 집합을 만든다. */
     private Set<Integer> seasonMonthsBySlugs(List<String> slugs) {
         Set<Integer> ms = new HashSet<>();
         if (slugs == null) return ms;
@@ -224,28 +206,24 @@ public class FestivalRecommendService {
         return ms;
     }
 
-    /** 축제가 선택 월과 겹치면 높은 점수를 부여(겹치는 정도에 따라 가중) */
     private int seasonScore(Festival f, Set<Integer> months) {
         if (months == null || months.isEmpty()) return 0;
         LocalDate s = f.getFestivalStart();
         LocalDate e = f.getFestivalEnd();
         if (s == null && e == null) return 0;
 
-        // 시작/종료 월만 있는 단순 케이스 가중
         int score = 0;
         if (s != null && months.contains(s.getMonthValue())) score += 3;
         if (e != null && months.contains(e.getMonthValue())) score += 2;
 
-        // 기간이 길면 월 겹침을 추가 가점(간단 루프)
         if (s != null && e != null) {
             Set<Integer> span = enumerateMonthsInclusive(s, e);
             long overlap = span.stream().filter(months::contains).count();
-            score += overlap; // 겹치는 월 수만큼 +1
+            score += overlap;
         }
         return score;
     }
 
-    /** 이름/설명에 계절 단어가 등장하면 소폭 가점(보조용) */
     private int textSeasonBias(Festival f, Set<Integer> months) {
         if (months == null || months.isEmpty()) return 0;
         String text = (ns(f.getFestivalName()) + " " + ns(f.getFestivalDesc())).toLowerCase();
@@ -261,21 +239,17 @@ public class FestivalRecommendService {
         return b;
     }
 
-    /** 시작~종료 기간의 월을 모두 뽑는다(연도 경계 포함) */
     private Set<Integer> enumerateMonthsInclusive(LocalDate start, LocalDate end) {
         Set<Integer> set = new HashSet<>();
         if (start == null || end == null) return set;
         LocalDate cur = start;
-        int guard = 0; // 무한루프 방지
+        int guard = 0;
         while (!cur.isAfter(end) && guard++ < 370) {
             set.add(cur.getMonthValue());
             cur = cur.plusMonths(1).withDayOfMonth(1);
         }
         return set;
-        // 참고: start > end인 비정상 데이터는 상단 seasonScore에서 처리하지 않음
     }
-
-    // ---------- 공통 유틸 ----------
 
     private static String ns(String s){ return s == null ? "" : s; }
     private static String trim(String s, int max){
