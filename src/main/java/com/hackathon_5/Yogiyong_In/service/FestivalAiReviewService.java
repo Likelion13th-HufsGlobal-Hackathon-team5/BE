@@ -172,6 +172,10 @@ public class FestivalAiReviewService {
                 - 핵심 포인트 2개 이내
                 - 날짜/가격 등은 추측 금지
                 - 출력은 한국어 평서문
+                - 제목, 번호, 불릿포인트, 마크다운 문법 사용 금지
+                - 오직 줄글로만 작성
+                - 문체는 ~합니다체로 작성
+                - 축제 이름은 사용하지 말 것
                 """));
 
         String prompt = String.format("""
