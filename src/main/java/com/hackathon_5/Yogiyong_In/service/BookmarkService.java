@@ -57,6 +57,19 @@ public class BookmarkService {
                 .build();
     }
 
+    // [ADD] 추가
+    public BookmarkIdListResDto getMyBookmarkFestivalIds(String userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+        List<Integer> ids = bookmarkRepository.findFestivalIdsByUser(user);
+
+        return BookmarkIdListResDto.builder()
+                .count(ids.size())
+                .festivalIds(ids)
+                .build();
+    }
+
     public void deleteBookmark(String userId, Integer festivalId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
@@ -69,3 +82,4 @@ public class BookmarkService {
         bookmarkRepository.delete(bookmark);
     }
 }
+

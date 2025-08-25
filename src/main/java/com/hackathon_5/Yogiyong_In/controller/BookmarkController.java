@@ -3,6 +3,8 @@ package com.hackathon_5.Yogiyong_In.controller;
 import com.hackathon_5.Yogiyong_In.dto.ApiResponse;
 import com.hackathon_5.Yogiyong_In.dto.Bookmark.BookmarkCreateReqDto;
 import com.hackathon_5.Yogiyong_In.dto.Bookmark.BookmarkCreateResDto;
+// [ADD] 새로 만든 DTO import 추가
+import com.hackathon_5.Yogiyong_In.dto.Bookmark.BookmarkIdListResDto;
 import com.hackathon_5.Yogiyong_In.dto.Bookmark.BookmarkListResDto;
 import com.hackathon_5.Yogiyong_In.config.JwtTokenProvider;
 import com.hackathon_5.Yogiyong_In.service.BookmarkService;
@@ -12,8 +14,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
@@ -57,6 +57,26 @@ public class BookmarkController {
         }
     }
 
+    // [ADD] 작성하신 새 메소드를 여기에 추가
+    @Operation(
+            summary = "마이페이지 북마크 ID 모아보기",
+            description = "내가 저장한 북마크의 축제 ID 목록만 반환합니다."
+    )
+    @GetMapping("/mypage/bookmarks/ids")
+    public ApiResponse<BookmarkIdListResDto> getMyBookmarkIds(HttpServletRequest request) {
+        String token = AuthUtils.resolveAccessToken(request);
+        if (token == null) return ApiResponse.fail("인증 토큰이 없습니다.");
+        String userId = jwtTokenProvider.getSubject(token);
+
+        try {
+            // 서비스 메소드 이름은 getMyBookmarks -> getMyBookmarkFestivalIds
+            return ApiResponse.ok(bookmarkService.getMyBookmarkFestivalIds(userId), "북마크 ID 목록");
+        } catch (IllegalArgumentException e) {
+            return ApiResponse.fail(e.getMessage());
+        }
+    }
+
+
     @Operation(summary = "축제 북마크 삭제", description = "축제 ID로 북마크를 삭제합니다.")
     @DeleteMapping("/{festivalId}")
     public ResponseEntity<Void> deleteBookmark(Principal principal,
@@ -65,6 +85,4 @@ public class BookmarkController {
         bookmarkService.deleteBookmark(userId, festivalId);
         return ResponseEntity.noContent().build();
     }
-
-
 }
