@@ -44,7 +44,16 @@ public class SecurityConfig {
 
                 // ✅ 경로별 인가 정책
                 .authorizeHttpRequests(auth -> auth
-                        // 완전 공개 (회원가입/로그인/중복체크 등)
+                        // ✅ 완전 공개
+                        .requestMatchers(
+                                "/",                         // 루트
+                                "/actuator/health",          // 헬스체크(사용 중이면)
+                                "/favicon.ico",              // 파비콘
+                                "/index.html",               // 정적 index
+                                "/static/**", "/public/**", "/assets/**" // 정적 리소스 경로
+                        ).permitAll()
+
+                        // 기존 공개 API들
                         .requestMatchers(
                                 "/api/auth/**",
                                 "/v3/api-docs/**", "/api-docs/**", "/docs/**", "/swagger-ui/**", "/swagger-ui.html",
@@ -55,15 +64,16 @@ public class SecurityConfig {
                                 "/api/mypage/**"
                         ).permitAll()
 
-                        // 키워드 조회(GET)만 공개
+                        // GET 공개
                         .requestMatchers(HttpMethod.GET, "/api/keywords").permitAll()
 
                         // Preflight 허용
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                        // 나머지는 인증 필요
+                        // 그 외는 인증
                         .anyRequest().authenticated()
                 )
+
 
                 // ✅ 예외 처리
                 .exceptionHandling(e -> e
@@ -91,6 +101,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration cfg = new CorsConfiguration();
         cfg.setAllowedOrigins(List.of(
+                "https://yogiyongin.lion.it.kr",
                 "http://localhost:3000",
                 "http://localhost:8080",
                 "http://localhost:8081",
