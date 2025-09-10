@@ -9,7 +9,9 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -27,20 +29,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         this.jwtTokenProvider = jwtTokenProvider;
     }
 
-    // ✅ CORS preflight는 필터 스킵
+    /** ✅ CORS preflight(OPTIONS)는 필터 스킵 */
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         return "OPTIONS".equalsIgnoreCase(request.getMethod());
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain
+    ) throws ServletException, IOException {
 
         String token = extractToken(request);
 
-        // 가짜/빈 토큰은 즉시 패스
+        // 토큰이 없거나 placeholder 값이면 그대로 패스
         if (token == null || token.isBlank()
                 || "null".equalsIgnoreCase(token)
                 || "undefined".equalsIgnoreCase(token)) {
@@ -48,8 +52,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        // 토큰이 있고, 인증 정보가 없을 때에만 처리
-        if (token != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        // 토큰이 있고, 아직 인증 컨텍스트가 비어 있을 때만 처리
+        if (SecurityContextHolder.getContext().getAuthentication() == null) {
             try {
                 Claims claims = Jwts.parserBuilder()
                         .setSigningKey(jwtTokenProvider.getKey())
@@ -65,34 +69,32 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authToken);
 
             } catch (ExpiredJwtException e) {
-                // ⛔️ 401 직접 전송 금지 — 컨텍스트만 클리어하고 체인 진행
+                // ⛔️ 여기서 401을 직접 쓰지 않음 — permitAll 경로를 막지 않기 위해 체인 진행
                 log.warn("토큰 만료: {}", e.getMessage());
-                SecurityContextHolder.clearContext(); // was: response.sendError(401, "Token expired")
-                // return; // disabled to allow chain to continue
+                SecurityContextHolder.clearContext();
             } catch (JwtException e) {
-                // ⛔️ 401 직접 전송 금지 — 컨텍스트만 클리어하고 체인 진행
+                // ⛔️ 유효하지 않은 토큰 — 컨텍스트만 비우고 체인 진행
                 log.warn("유효하지 않은 토큰: {}", e.getMessage());
-                SecurityContextHolder.clearContext(); // was: response.sendError(401, "Invalid token")
-                // return; // disabled to allow chain to continue
+                SecurityContextHolder.clearContext();
             }
         }
 
-        // ✅ 인가 판단은 SecurityConfig 쪽에서 하도록 넘긴다
+        // ✅ 인가 여부 판단은 SecurityConfig의 authorizeHttpRequests에서 처리
         filterChain.doFilter(request, response);
     }
 
-
     private String extractToken(HttpServletRequest request) {
-        // 1) Authorization 헤더 우선
+        // 1) Authorization: Bearer <token>
         String header = request.getHeader("Authorization");
         if (header != null && header.startsWith("Bearer ")) {
             return header.substring(7);
         }
         // 2) ACCESS_TOKEN 쿠키
-        if (request.getCookies() != null) {
-            for (Cookie cookie : request.getCookies()) {
-                if ("ACCESS_TOKEN".equals(cookie.getName())) {
-                    return cookie.getValue();
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie c : cookies) {
+                if ("ACCESS_TOKEN".equals(c.getName())) {
+                    return c.getValue();
                 }
             }
         }
